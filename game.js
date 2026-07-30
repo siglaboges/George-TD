@@ -1,8 +1,16 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-canvas.width = 900;
-canvas.height = 600;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+
+window.addEventListener("resize",()=>{
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+});
 
 
 // =================
@@ -10,44 +18,44 @@ canvas.height = 600;
 // =================
 
 const enemyImg = new Image();
-enemyImg.src = "sprite/enemy.png";
+enemyImg.src="sprite/enemy.png";
 
 const arrowImg = new Image();
-arrowImg.src = "sprite/arrow.png";
+arrowImg.src="sprite/arrow.png";
 
 const arrowPImg = new Image();
-arrowPImg.src = "sprite/arrowp.png";
+arrowPImg.src="sprite/arrowp.png";
 
 
 // =================
 // PLAYER
 // =================
 
-let coins = 500;
-let gems = Number(localStorage.getItem("gems")) || 0;
-let lives = 100;
-let stage = 1;
+let coins=500;
+let gems=Number(localStorage.getItem("gems")) || 0;
+let lives=100;
+let stage=1;
 
-let gameOver = false;
+let gameOver=false;
 
 
 // =================
 // MOUSE
 // =================
 
-let mouseX = 0;
-let mouseY = 0;
+let mouseX=0;
+let mouseY=0;
 
-let selectedTower = null;
-let upgradeTower = null;
+let selectedTower=null;
+let upgradeTower=null;
 
 
-canvas.addEventListener("mousemove", function(event){
+canvas.addEventListener("mousemove",(event)=>{
 
-    let rect = canvas.getBoundingClientRect();
+    let rect=canvas.getBoundingClientRect();
 
-    mouseX = event.clientX - rect.left;
-    mouseY = event.clientY - rect.top;
+    mouseX=event.clientX-rect.left;
+    mouseY=event.clientY-rect.top;
 
 });
 
@@ -56,35 +64,67 @@ canvas.addEventListener("mousemove", function(event){
 // OBJECTS
 // =================
 
-let enemies = [];
-let towers = [];
-let projectiles = [];
+let enemies=[];
+let towers=[];
+let projectiles=[];
+
 
 
 // =================
 // PATH
 // =================
 
-const path = [
-    {x:0,y:200},
-    {x:600,y:200},
-    {x:600,y:450},
-    {x:900,y:450}
-];
+let path=[];
+
+
+function updatePath(){
+
+    path=[
+
+        {x:0,y:200},
+
+        {
+            x:canvas.width*0.65,
+            y:200
+        },
+
+        {
+            x:canvas.width*0.65,
+            y:canvas.height*0.7
+        },
+
+        {
+            x:canvas.width,
+            y:canvas.height*0.7
+        }
+
+    ];
+
+}
+
+
+updatePath();
+
+
+window.addEventListener("resize",updatePath);
+
 
 
 // =================
-// SPAWN ENEMIES
+// SPAWN
 // =================
 
 function spawnEnemy(){
 
+
     enemies.push({
 
-        x:0,
-        y:200,
+        x:path[0].x,
+
+        y:path[0].y,
 
         hp:1,
+
         maxHp:1,
 
         speed:2,
@@ -93,10 +133,13 @@ function spawnEnemy(){
 
     });
 
+
 }
 
 
+
 setInterval(()=>{
+
 
     if(!gameOver){
 
@@ -104,31 +147,31 @@ setInterval(()=>{
 
     }
 
+
 },1000);
 
 
 
 // =================
-// CLICK SYSTEM
+// CLICK
 // =================
 
-canvas.addEventListener("click",function(event){
+canvas.addEventListener("click",(event)=>{
 
 
-    let rect = canvas.getBoundingClientRect();
+    let rect=canvas.getBoundingClientRect();
 
-    let x = event.clientX - rect.left;
-    let y = event.clientY - rect.top;
+
+    let x=event.clientX-rect.left;
+    let y=event.clientY-rect.top;
 
 
 
     // SHOP
 
     if(
-        x>=10 &&
-        x<=110 &&
-        y>=500 &&
-        y<=590
+        x<120 &&
+        y>canvas.height-120
     ){
 
         selectedTower="arrow";
@@ -139,44 +182,22 @@ canvas.addEventListener("click",function(event){
 
 
 
-    // CLICK EXISTING TOWER
-
-    for(let tower of towers){
-
-
-        let distance=Math.sqrt(
-
-            (x-tower.x)**2+
-            (y-tower.y)**2
-
-        );
-
-
-        if(distance < 30){
-
-            upgradeTower=tower;
-            selectedTower=null;
-
-            return;
-
-        }
-
-
-    }
-
-
 
     // PLACE TOWER
 
     if(selectedTower==="arrow"){
 
 
-        if(coins>=100 && !isOnPath(x,y)){
+        if(
+            coins>=100 &&
+            !isOnPath(x,y)
+        ){
 
 
             towers.push({
 
                 x:x,
+
                 y:y,
 
                 damage:1,
@@ -188,7 +209,6 @@ canvas.addEventListener("click",function(event){
                 fireRate:40,
 
                 angle:0
-
 
             });
 
@@ -205,6 +225,7 @@ canvas.addEventListener("click",function(event){
     }
 
 
+
 });
 
 
@@ -214,9 +235,6 @@ canvas.addEventListener("click",function(event){
 // =================
 
 function isOnPath(x,y){
-
-
-    let width=80;
 
 
     for(let i=0;i<path.length-1;i++){
@@ -233,7 +251,9 @@ function isOnPath(x,y){
         let length=Math.sqrt(dx*dx+dy*dy);
 
 
-        let t=((x-a.x)*dx+(y-a.y)*dy)/(length*length);
+        let t=((x-a.x)*dx+(y-a.y)*dy)
+        /(length*length);
+
 
 
         t=Math.max(0,Math.min(1,t));
@@ -241,6 +261,7 @@ function isOnPath(x,y){
 
         let cx=a.x+t*dx;
         let cy=a.y+t*dy;
+
 
 
         let distance=Math.sqrt(
@@ -251,7 +272,7 @@ function isOnPath(x,y){
         );
 
 
-        if(distance < width/2){
+        if(distance<40){
 
             return true;
 
@@ -263,12 +284,10 @@ function isOnPath(x,y){
 
     return false;
 
+
 }
-
-
-
 // =================
-// ENEMY MOVEMENT
+// MOVE ENEMIES
 // =================
 
 function moveEnemies(){
@@ -284,7 +303,9 @@ function moveEnemies(){
         let dy=target.y-enemy.y;
 
 
-        let distance=Math.sqrt(dx*dx+dy*dy);
+        let distance=Math.sqrt(
+            dx*dx+dy*dy
+        );
 
 
 
@@ -294,7 +315,9 @@ function moveEnemies(){
             enemy.x=target.x;
             enemy.y=target.y;
 
+
             enemy.point++;
+
 
 
             if(enemy.point>=path.length){
@@ -302,7 +325,9 @@ function moveEnemies(){
 
                 lives--;
 
+
                 enemies.splice(index,1);
+
 
 
                 if(lives<=0){
@@ -312,6 +337,7 @@ function moveEnemies(){
 
                 }
 
+
             }
 
 
@@ -320,6 +346,7 @@ function moveEnemies(){
 
 
             enemy.x+=(dx/distance)*enemy.speed;
+
             enemy.y+=(dy/distance)*enemy.speed;
 
 
@@ -334,7 +361,7 @@ function moveEnemies(){
 
 
 // =================
-// TOWER SHOOTING
+// UPDATE TOWERS
 // =================
 
 function updateTowers(){
@@ -350,7 +377,9 @@ function updateTowers(){
         }
 
 
+
         let target=null;
+
 
 
         enemies.forEach(enemy=>{
@@ -359,6 +388,7 @@ function updateTowers(){
             let distance=Math.sqrt(
 
                 (enemy.x-tower.x)**2+
+
                 (enemy.y-tower.y)**2
 
             );
@@ -391,6 +421,7 @@ function updateTowers(){
             if(tower.cooldown<=0){
 
 
+
                 projectiles.push({
 
                     x:tower.x,
@@ -399,14 +430,14 @@ function updateTowers(){
 
                     target:target,
 
-                    speed:7,
+                    speed:8,
 
                     damage:tower.damage,
 
                     angle:tower.angle
 
-
                 });
+
 
 
                 tower.cooldown=tower.fireRate;
@@ -422,8 +453,11 @@ function updateTowers(){
 
 
 }
+
+
+
 // =================
-// PROJECTILES
+// UPDATE PROJECTILES
 // =================
 
 function updateProjectiles(){
@@ -443,17 +477,34 @@ function updateProjectiles(){
 
 
         let dx=arrow.target.x-arrow.x;
+
         let dy=arrow.target.y-arrow.y;
 
 
-        let distance=Math.sqrt(dx*dx+dy*dy);
+
+        let distance=Math.sqrt(
+
+            dx*dx+dy*dy
+
+        );
 
 
 
-        if(distance < arrow.speed){
+        arrow.angle=Math.atan2(
+
+            dy,
+
+            dx
+
+        );
+
+
+
+        if(distance<arrow.speed){
 
 
             arrow.target.hp-=arrow.damage;
+
 
 
             projectiles.splice(index,1);
@@ -463,19 +514,29 @@ function updateProjectiles(){
             if(arrow.target.hp<=0){
 
 
-                let enemyIndex=enemies.indexOf(arrow.target);
+
+                let enemyIndex=enemies.indexOf(
+                    arrow.target
+                );
+
 
 
                 if(enemyIndex!=-1){
 
-                    enemies.splice(enemyIndex,1);
+                    enemies.splice(
+                        enemyIndex,
+                        1
+                    );
+
 
                     coins+=10;
+
 
                 }
 
 
             }
+
 
 
         }
@@ -485,12 +546,6 @@ function updateProjectiles(){
             arrow.x+=(dx/distance)*arrow.speed;
 
             arrow.y+=(dy/distance)*arrow.speed;
-
-
-            arrow.angle=Math.atan2(
-                dy,
-                dx
-            );
 
 
         }
@@ -512,11 +567,17 @@ function drawMap(){
 
     ctx.fillStyle="#6ac34a";
 
+
     ctx.fillRect(
+
         0,
+
         0,
+
         canvas.width,
+
         canvas.height
+
     );
 
 
@@ -587,6 +648,7 @@ function drawEnemies(){
 
         ctx.fillStyle="black";
 
+
         ctx.fillRect(
 
             enemy.x-25,
@@ -600,7 +662,9 @@ function drawEnemies(){
         );
 
 
+
         ctx.fillStyle="red";
+
 
         ctx.fillRect(
 
@@ -646,7 +710,7 @@ function drawTowers(){
 
 
 
-        // FIX BECAUSE SPRITE FACES DOWN
+        // sprite points down
 
         ctx.rotate(
 
@@ -675,7 +739,6 @@ function drawTowers(){
         ctx.restore();
 
 
-
     });
 
 
@@ -696,6 +759,7 @@ function drawProjectiles(){
         ctx.save();
 
 
+
         ctx.translate(
 
             arrow.x,
@@ -705,8 +769,6 @@ function drawProjectiles(){
         );
 
 
-
-        // arrow sprite also faces down
 
         ctx.rotate(
 
@@ -749,9 +811,6 @@ function drawProjectiles(){
 function drawRangeCircles(){
 
 
-
-    // placing tower preview
-
     if(selectedTower==="arrow"){
 
 
@@ -773,22 +832,17 @@ function drawRangeCircles(){
         );
 
 
-        ctx.fillStyle="rgba(0,150,255,0.15)";
+
+        ctx.fillStyle=
+        "rgba(0,150,255,0.5)";
+
 
         ctx.fill();
-
-
-        ctx.strokeStyle="rgba(0,150,255,0.5)";
-
-        ctx.stroke();
 
 
     }
 
 
-
-
-    // hovering towers
 
     towers.forEach(tower=>{
 
@@ -803,10 +857,12 @@ function drawRangeCircles(){
 
 
 
-        if(distance<30){
+        if(distance<35){
+
 
 
             ctx.beginPath();
+
 
 
             ctx.arc(
@@ -825,16 +881,12 @@ function drawRangeCircles(){
 
 
 
-            ctx.fillStyle="rgba(0,150,255,0.12)";
+            ctx.fillStyle=
+            "rgba(0,150,255,0.5)";
+
+
 
             ctx.fill();
-
-
-
-            ctx.strokeStyle="rgba(0,150,255,0.5)";
-
-            ctx.stroke();
-
 
 
         }
@@ -856,6 +908,7 @@ function drawUI(){
 
     ctx.fillStyle="black";
 
+
     ctx.fillRect(
 
         0,
@@ -872,7 +925,12 @@ function drawUI(){
 
     ctx.fillStyle="white";
 
+
     ctx.font="20px Arial";
+
+
+
+    ctx.textAlign="left";
 
 
     ctx.fillText(
@@ -919,6 +977,24 @@ function drawUI(){
     );
 
 
+
+    ctx.textAlign="right";
+
+
+    ctx.fillText(
+
+        "George TD v0.3.7",
+
+        canvas.width-20,
+
+        32
+
+    );
+
+
+    ctx.textAlign="left";
+
+
 }
 
 
@@ -937,11 +1013,11 @@ function drawShop(){
 
         10,
 
-        500,
+        canvas.height-120,
 
-        100,
+        110,
 
-        90
+        100
 
     );
 
@@ -953,7 +1029,7 @@ function drawShop(){
 
         35,
 
-        510,
+        canvas.height-110,
 
         50,
 
@@ -973,91 +1049,9 @@ function drawShop(){
 
         "100$",
 
-        30,
+        35,
 
-        585
-
-    );
-
-
-}
-
-
-
-// =================
-// UPGRADE MENU
-// =================
-
-function drawUpgradeMenu(){
-
-
-    if(!upgradeTower) return;
-
-
-
-    ctx.fillStyle="#222";
-
-
-    ctx.fillRect(
-
-        700,
-
-        100,
-
-        180,
-
-        180
-
-    );
-
-
-
-    ctx.fillStyle="white";
-
-
-    ctx.font="18px Arial";
-
-
-    ctx.fillText(
-
-        "Bow Man",
-
-        720,
-
-        130
-
-    );
-
-
-    ctx.fillText(
-
-        "Damage: "+upgradeTower.damage,
-
-        720,
-
-        160
-
-    );
-
-
-    ctx.fillText(
-
-        "Range: "+upgradeTower.range,
-
-        720,
-
-        190
-
-    );
-
-
-    ctx.fillText(
-
-        "Upgrade",
-
-        720,
-
-        240
+        canvas.height-35
 
     );
 
@@ -1081,6 +1075,7 @@ function gameLoop(){
 
     moveEnemies();
 
+
     updateTowers();
 
     updateProjectiles();
@@ -1098,8 +1093,6 @@ function gameLoop(){
     drawUI();
 
     drawShop();
-
-    drawUpgradeMenu();
 
 
 
