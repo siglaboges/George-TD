@@ -8,7 +8,13 @@ canvas.height = 600;
 // Load enemy sprite
 const enemyImg = new Image();
 enemyImg.src = "sprite/enemy.png";
+enemyImg.onload = function(){
+    console.log("Enemy loaded!");
+};
 
+enemyImg.onerror = function(){
+    console.log("Enemy failed to load!");
+};
 
 // Enemy data
 let enemy = {
