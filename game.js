@@ -422,3 +422,692 @@ function updateTowers(){
 
 
 }
+// =================
+// PROJECTILES
+// =================
+
+function updateProjectiles(){
+
+
+    projectiles.forEach((arrow,index)=>{
+
+
+        if(!arrow.target){
+
+            projectiles.splice(index,1);
+
+            return;
+
+        }
+
+
+
+        let dx=arrow.target.x-arrow.x;
+        let dy=arrow.target.y-arrow.y;
+
+
+        let distance=Math.sqrt(dx*dx+dy*dy);
+
+
+
+        if(distance < arrow.speed){
+
+
+            arrow.target.hp-=arrow.damage;
+
+
+            projectiles.splice(index,1);
+
+
+
+            if(arrow.target.hp<=0){
+
+
+                let enemyIndex=enemies.indexOf(arrow.target);
+
+
+                if(enemyIndex!=-1){
+
+                    enemies.splice(enemyIndex,1);
+
+                    coins+=10;
+
+                }
+
+
+            }
+
+
+        }
+        else{
+
+
+            arrow.x+=(dx/distance)*arrow.speed;
+
+            arrow.y+=(dy/distance)*arrow.speed;
+
+
+            arrow.angle=Math.atan2(
+                dy,
+                dx
+            );
+
+
+        }
+
+
+    });
+
+
+}
+
+
+
+// =================
+// DRAW MAP
+// =================
+
+function drawMap(){
+
+
+    ctx.fillStyle="#6ac34a";
+
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+
+
+    ctx.strokeStyle="#b88652";
+
+    ctx.lineWidth=80;
+
+    ctx.lineCap="round";
+
+
+
+    ctx.beginPath();
+
+
+    ctx.moveTo(
+        path[0].x,
+        path[0].y
+    );
+
+
+    for(let i=1;i<path.length;i++){
+
+
+        ctx.lineTo(
+            path[i].x,
+            path[i].y
+        );
+
+
+    }
+
+
+    ctx.stroke();
+
+
+}
+
+
+
+// =================
+// DRAW ENEMIES
+// =================
+
+function drawEnemies(){
+
+
+    enemies.forEach(enemy=>{
+
+
+        ctx.drawImage(
+
+            enemyImg,
+
+            enemy.x-25,
+
+            enemy.y-25,
+
+            50,
+
+            50
+
+        );
+
+
+
+        // HP BAR
+
+        ctx.fillStyle="black";
+
+        ctx.fillRect(
+
+            enemy.x-25,
+
+            enemy.y-40,
+
+            50,
+
+            7
+
+        );
+
+
+        ctx.fillStyle="red";
+
+        ctx.fillRect(
+
+            enemy.x-25,
+
+            enemy.y-40,
+
+            50*(enemy.hp/enemy.maxHp),
+
+            7
+
+        );
+
+
+    });
+
+
+}
+
+
+
+// =================
+// DRAW TOWERS
+// =================
+
+function drawTowers(){
+
+
+    towers.forEach(tower=>{
+
+
+        ctx.save();
+
+
+
+        ctx.translate(
+
+            tower.x,
+
+            tower.y
+
+        );
+
+
+
+        // FIX BECAUSE SPRITE FACES DOWN
+
+        ctx.rotate(
+
+            tower.angle + Math.PI/2
+
+        );
+
+
+
+        ctx.drawImage(
+
+            arrowImg,
+
+            -25,
+
+            -25,
+
+            50,
+
+            50
+
+        );
+
+
+
+        ctx.restore();
+
+
+
+    });
+
+
+}
+
+
+
+// =================
+// DRAW PROJECTILES
+// =================
+
+function drawProjectiles(){
+
+
+    projectiles.forEach(arrow=>{
+
+
+        ctx.save();
+
+
+        ctx.translate(
+
+            arrow.x,
+
+            arrow.y
+
+        );
+
+
+
+        // arrow sprite also faces down
+
+        ctx.rotate(
+
+            arrow.angle + Math.PI/2
+
+        );
+
+
+
+        ctx.drawImage(
+
+            arrowPImg,
+
+            -10,
+
+            -10,
+
+            20,
+
+            20
+
+        );
+
+
+
+        ctx.restore();
+
+
+    });
+
+
+}
+
+
+
+// =================
+// RANGE CIRCLES
+// =================
+
+function drawRangeCircles(){
+
+
+
+    // placing tower preview
+
+    if(selectedTower==="arrow"){
+
+
+        ctx.beginPath();
+
+
+        ctx.arc(
+
+            mouseX,
+
+            mouseY,
+
+            220,
+
+            0,
+
+            Math.PI*2
+
+        );
+
+
+        ctx.fillStyle="rgba(0,150,255,0.15)";
+
+        ctx.fill();
+
+
+        ctx.strokeStyle="rgba(0,150,255,0.5)";
+
+        ctx.stroke();
+
+
+    }
+
+
+
+
+    // hovering towers
+
+    towers.forEach(tower=>{
+
+
+        let distance=Math.sqrt(
+
+            (mouseX-tower.x)**2+
+
+            (mouseY-tower.y)**2
+
+        );
+
+
+
+        if(distance<30){
+
+
+            ctx.beginPath();
+
+
+            ctx.arc(
+
+                tower.x,
+
+                tower.y,
+
+                tower.range,
+
+                0,
+
+                Math.PI*2
+
+            );
+
+
+
+            ctx.fillStyle="rgba(0,150,255,0.12)";
+
+            ctx.fill();
+
+
+
+            ctx.strokeStyle="rgba(0,150,255,0.5)";
+
+            ctx.stroke();
+
+
+
+        }
+
+
+    });
+
+
+}
+
+
+
+// =================
+// UI
+// =================
+
+function drawUI(){
+
+
+    ctx.fillStyle="black";
+
+    ctx.fillRect(
+
+        0,
+
+        0,
+
+        canvas.width,
+
+        50
+
+    );
+
+
+
+    ctx.fillStyle="white";
+
+    ctx.font="20px Arial";
+
+
+    ctx.fillText(
+
+        "$"+coins,
+
+        20,
+
+        32
+
+    );
+
+
+    ctx.fillText(
+
+        "💎 "+gems,
+
+        150,
+
+        32
+
+    );
+
+
+    ctx.fillText(
+
+        "❤️ "+lives,
+
+        280,
+
+        32
+
+    );
+
+
+    ctx.fillText(
+
+        "Stage "+stage,
+
+        450,
+
+        32
+
+    );
+
+
+}
+
+
+
+// =================
+// SHOP
+// =================
+
+function drawShop(){
+
+
+    ctx.fillStyle="#333";
+
+
+    ctx.fillRect(
+
+        10,
+
+        500,
+
+        100,
+
+        90
+
+    );
+
+
+
+    ctx.drawImage(
+
+        arrowImg,
+
+        35,
+
+        510,
+
+        50,
+
+        50
+
+    );
+
+
+
+    ctx.fillStyle="white";
+
+
+    ctx.font="italic 20px cursive";
+
+
+    ctx.fillText(
+
+        "100$",
+
+        30,
+
+        585
+
+    );
+
+
+}
+
+
+
+// =================
+// UPGRADE MENU
+// =================
+
+function drawUpgradeMenu(){
+
+
+    if(!upgradeTower) return;
+
+
+
+    ctx.fillStyle="#222";
+
+
+    ctx.fillRect(
+
+        700,
+
+        100,
+
+        180,
+
+        180
+
+    );
+
+
+
+    ctx.fillStyle="white";
+
+
+    ctx.font="18px Arial";
+
+
+    ctx.fillText(
+
+        "Bow Man",
+
+        720,
+
+        130
+
+    );
+
+
+    ctx.fillText(
+
+        "Damage: "+upgradeTower.damage,
+
+        720,
+
+        160
+
+    );
+
+
+    ctx.fillText(
+
+        "Range: "+upgradeTower.range,
+
+        720,
+
+        190
+
+    );
+
+
+    ctx.fillText(
+
+        "Upgrade",
+
+        720,
+
+        240
+
+    );
+
+
+}
+
+
+
+// =================
+// GAME LOOP
+// =================
+
+function gameLoop(){
+
+
+    drawMap();
+
+
+    drawRangeCircles();
+
+
+    moveEnemies();
+
+    updateTowers();
+
+    updateProjectiles();
+
+
+
+    drawTowers();
+
+    drawProjectiles();
+
+    drawEnemies();
+
+
+
+    drawUI();
+
+    drawShop();
+
+    drawUpgradeMenu();
+
+
+
+    requestAnimationFrame(gameLoop);
+
+
+}
+
+
+
+gameLoop();
