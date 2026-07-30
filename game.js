@@ -1,51 +1,172 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-const WIDTH = canvas.width;
-const HEIGHT = canvas.height;
+canvas.width = 900;
+canvas.height = 600;
 
-let money = 500;
+
+// Load enemy sprite
+const enemyImg = new Image();
+enemyImg.src = "sprite/enemy.png";
+
+
+// Enemy data
+let enemy = {
+    x: -50,
+    y: 200,
+    hp: 10,
+    maxHp: 10,
+    speed: 2,
+    size: 50,
+    pathPoint: 0
+};
+
+
+// Path points
+const path = [
+    {x: 0, y: 200},
+    {x: 600, y: 200},
+    {x: 600, y: 450},
+    {x: 900, y: 450}
+];
+
+
+// UI
+let coins = 500;
 let gems = 0;
 let lives = 100;
 let stage = 1;
 
-function drawBackground() {
+
+
+function drawMap(){
+
     // Grass
-    ctx.fillStyle = "#6fcf5c";
-    ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    ctx.fillStyle = "#6ac34a";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    // Path
-    ctx.fillStyle = "#d6b26d";
 
-    ctx.fillRect(0, 260, 250, 80);
-    ctx.fillRect(250, 260, 80, 220);
-    ctx.fillRect(250, 400, 450, 80);
-    ctx.fillRect(620, 150, 80, 330);
-    ctx.fillRect(620, 150, 300, 80);
+    // Dirt path
+    ctx.strokeStyle = "#b88652";
+    ctx.lineWidth = 80;
+    ctx.lineCap = "round";
+
+    ctx.beginPath();
+
+    ctx.moveTo(path[0].x,path[0].y);
+
+    for(let i = 1; i < path.length; i++){
+        ctx.lineTo(path[i].x,path[i].y);
+    }
+
+    ctx.stroke();
 }
 
-function drawUI() {
 
-    ctx.fillStyle = "rgba(0,0,0,0.6)";
-    ctx.fillRect(0,0,1000,40);
+
+function moveEnemy(){
+
+    let target = path[enemy.pathPoint + 1];
+
+
+    if(!target){
+        // enemy escaped
+        enemy.x = -50;
+        enemy.y = 200;
+        enemy.pathPoint = 0;
+        lives--;
+        return;
+    }
+
+
+    let dx = target.x - enemy.x;
+    let dy = target.y - enemy.y;
+
+    let distance = Math.sqrt(dx*dx + dy*dy);
+
+
+    if(distance < enemy.speed){
+
+        enemy.x = target.x;
+        enemy.y = target.y;
+        enemy.pathPoint++;
+
+    } else {
+
+        enemy.x += (dx / distance) * enemy.speed;
+        enemy.y += (dy / distance) * enemy.speed;
+
+    }
+}
+
+
+
+function drawEnemy(){
+
+    // enemy image
+    ctx.drawImage(
+        enemyImg,
+        enemy.x - enemy.size/2,
+        enemy.y - enemy.size/2,
+        enemy.size,
+        enemy.size
+    );
+
+
+    // HP bar background
+    ctx.fillStyle = "black";
+    ctx.fillRect(
+        enemy.x - 25,
+        enemy.y - 40,
+        50,
+        8
+    );
+
+
+    // HP
+    ctx.fillStyle = "red";
+    ctx.fillRect(
+        enemy.x - 25,
+        enemy.y - 40,
+        50 * (enemy.hp/enemy.maxHp),
+        8
+    );
+}
+
+
+
+function drawUI(){
+
+    ctx.fillStyle = "black";
+    ctx.fillRect(0,0,canvas.width,50);
+
 
     ctx.fillStyle = "white";
     ctx.font = "20px Arial";
 
-    ctx.fillText("$ " + money,20,27);
-    ctx.fillText("💎 " + gems,150,27);
-    ctx.fillText("❤ " + lives,260,27);
-    ctx.fillText("Stage " + stage,380,27);
+    ctx.fillText("$" + coins,20,32);
+    ctx.fillText("💎 " + gems,150,32);
+    ctx.fillText("❤️ " + lives,280,32);
+    ctx.fillText("Stage " + stage,430,32);
+
 }
+
+
 
 function gameLoop(){
 
-    ctx.clearRect(0,0,WIDTH,HEIGHT);
+    drawMap();
 
-    drawBackground();
+    moveEnemy();
+
+    drawEnemy();
+
     drawUI();
 
+
     requestAnimationFrame(gameLoop);
+
 }
+
 
 gameLoop();
