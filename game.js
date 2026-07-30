@@ -5,12 +5,18 @@ canvas.width = 900;
 canvas.height = 600;
 
 
-// IMAGE
+// =================
+// IMAGES
+// =================
+
 const enemyImg = new Image();
 enemyImg.src = "sprite/enemy.png";
 
 
-// PLAYER DATA
+// =================
+// PLAYER
+// =================
+
 let coins = 500;
 let gems = Number(localStorage.getItem("gems")) || 0;
 let lives = 100;
@@ -19,7 +25,10 @@ let stage = 1;
 let gameOver = false;
 
 
+// =================
 // PATH
+// =================
+
 const path = [
     {x:0,y:200},
     {x:600,y:200},
@@ -28,149 +37,166 @@ const path = [
 ];
 
 
-// ENEMY
-let enemy = {
-    x:0,
-    y:200,
-    speed:2,
-    point:1
-};
+// =================
+// ENEMIES
+// =================
+
+let enemies = [];
 
 
-// RESET BUTTON
+function spawnEnemy(){
 
-const resetButton = document.createElement("button");
+    enemies.push({
 
-resetButton.innerText = "Reset Game";
+        x:0,
+        y:200,
 
-resetButton.style.position = "absolute";
-resetButton.style.left = "400px";
-resetButton.style.top = "300px";
-resetButton.style.fontSize = "25px";
-resetButton.style.display = "none";
+        hp:1,
+        maxHp:1,
 
-document.body.appendChild(resetButton);
+        speed:2,
 
+        point:1
 
-resetButton.onclick = function(){
-
-    lives = 100;
-    coins = 500;
-    stage = 1;
-
-    enemy.x = 0;
-    enemy.y = 200;
-    enemy.point = 1;
-
-    gameOver = false;
-
-    resetButton.style.display="none";
-
-};
-
-
-
-// MAP
-
-function drawMap(){
-
-    ctx.fillStyle="#6ac34a";
-    ctx.fillRect(0,0,900,600);
-
-
-    ctx.strokeStyle="#b88652";
-    ctx.lineWidth=80;
-    ctx.lineCap="round";
-
-    ctx.beginPath();
-
-    ctx.moveTo(path[0].x,path[0].y);
-
-    for(let i=1;i<path.length;i++){
-        ctx.lineTo(path[i].x,path[i].y);
-    }
-
-    ctx.stroke();
+    });
 
 }
 
 
+// Spawn enemies every second
 
-// ENEMY MOVEMENT
+setInterval(()=>{
 
-function moveEnemy(){
+    if(!gameOver){
+        spawnEnemy();
+    }
+
+},1000);
+
+
+
+// =================
+// MOVE ENEMIES
+// =================
+
+function moveEnemies(){
+
 
     if(gameOver) return;
 
 
-    let target = path[enemy.point];
+    enemies.forEach((enemy,index)=>{
 
 
-    let dx = target.x-enemy.x;
-    let dy = target.y-enemy.y;
+        let target = path[enemy.point];
 
 
-    let distance=Math.sqrt(dx*dx+dy*dy);
+        let dx = target.x-enemy.x;
+        let dy = target.y-enemy.y;
 
 
-    if(distance < enemy.speed){
-
-        enemy.x=target.x;
-        enemy.y=target.y;
-
-        enemy.point++;
+        let distance = Math.sqrt(dx*dx+dy*dy);
 
 
-        if(enemy.point >= path.length){
 
-            lives--;
-
-
-            enemy.x=0;
-            enemy.y=200;
-            enemy.point=1;
+        if(distance < enemy.speed){
 
 
-            if(lives <= 0){
+            enemy.x=target.x;
+            enemy.y=target.y;
 
-                lives=0;
-                gameOver=true;
+            enemy.point++;
 
-                resetButton.style.display="block";
+
+
+            if(enemy.point >= path.length){
+
+
+                lives--;
+
+
+                enemies.splice(index,1);
+
+
+                if(lives<=0){
+
+                    lives=0;
+                    gameOver=true;
+
+                }
 
             }
 
+
+        }
+        else{
+
+
+            enemy.x += (dx/distance)*enemy.speed;
+            enemy.y += (dy/distance)*enemy.speed;
+
+
         }
 
-    }
-    else{
 
-        enemy.x+=(dx/distance)*enemy.speed;
-        enemy.y+=(dy/distance)*enemy.speed;
-
-    }
+    });
 
 }
 
 
 
-// DRAW ENEMY
+// =================
+// DRAW ENEMIES
+// =================
 
-function drawEnemy(){
+function drawEnemies(){
 
-    ctx.drawImage(
-        enemyImg,
-        enemy.x-25,
-        enemy.y-25,
-        50,
-        50
-    );
+
+    enemies.forEach(enemy=>{
+
+
+        ctx.drawImage(
+            enemyImg,
+            enemy.x-25,
+            enemy.y-25,
+            50,
+            50
+        );
+
+
+
+        // HP bar
+
+        ctx.fillStyle="black";
+
+        ctx.fillRect(
+            enemy.x-25,
+            enemy.y-40,
+            50,
+            7
+        );
+
+
+        ctx.fillStyle="red";
+
+        ctx.fillRect(
+            enemy.x-25,
+            enemy.y-40,
+            50*(enemy.hp/enemy.maxHp),
+            7
+        );
+
+
+    });
+
 
 }
 
 
 
+// =================
 // UI
+// =================
 
 function drawUI(){
 
@@ -205,15 +231,53 @@ function drawUI(){
 
 
 
+// =================
+// MAP
+// =================
+
+function drawMap(){
+
+    ctx.fillStyle="#6ac34a";
+    ctx.fillRect(0,0,900,600);
+
+
+    ctx.strokeStyle="#b88652";
+    ctx.lineWidth=80;
+    ctx.lineCap="round";
+
+
+    ctx.beginPath();
+
+    ctx.moveTo(path[0].x,path[0].y);
+
+
+    for(let i=1;i<path.length;i++){
+
+        ctx.lineTo(
+            path[i].x,
+            path[i].y
+        );
+
+    }
+
+
+    ctx.stroke();
+
+}
+
+
+
+// =================
 // GAME LOOP
+// =================
 
 function gameLoop(){
 
     drawMap();
 
-    moveEnemy();
+    moveEnemies();
 
-    drawEnemy();
+    drawEnemies();
 
     drawUI();
 
