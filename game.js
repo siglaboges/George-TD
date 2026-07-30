@@ -1,5 +1,17 @@
+
+// =========================
+// GEORGE TD v0.3.8 PART 1
+// WAVES + ENEMY TIERS
+// =========================
+
+
+// =========================
+// CANVAS
+// =========================
+
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -10,95 +22,180 @@ window.addEventListener("resize",()=>{
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
+    updatePath();
+
 });
 
 
-// =================
+
+// =========================
 // IMAGES
-// =================
+// =========================
 
 const enemyImg = new Image();
 enemyImg.src="sprite/enemy.png";
 
+
 const arrowImg = new Image();
 arrowImg.src="sprite/arrow.png";
+
 
 const arrowPImg = new Image();
 arrowPImg.src="sprite/arrowp.png";
 
 
-// =================
+
+
+// =========================
 // PLAYER
-// =================
+// =========================
 
-let coins=500;
-let gems=Number(localStorage.getItem("gems")) || 0;
-let lives=100;
-let stage=1;
+let coins = 500;
 
-let gameOver=false;
+let gems = Number(localStorage.getItem("gems")) || 0;
 
+let lives = 100;
 
-// =================
-// MOUSE
-// =================
+let stage = 1;
 
-let mouseX=0;
-let mouseY=0;
-
-let selectedTower=null;
-let upgradeTower=null;
-
-
-canvas.addEventListener("mousemove",(event)=>{
-
-    let rect=canvas.getBoundingClientRect();
-
-    mouseX=event.clientX-rect.left;
-    mouseY=event.clientY-rect.top;
-
-});
-
-
-// =================
-// OBJECTS
-// =================
-
-let enemies=[];
-let towers=[];
-let projectiles=[];
+let gameOver = false;
 
 
 
-// =================
+// =========================
+// WAVE SYSTEM
+// =========================
+
+
+let currentWave = 0;
+
+let enemiesLeftToSpawn = 0;
+
+let waveInProgress = false;
+
+let waveCooldown = 5;
+
+
+let waveTimer = waveCooldown;
+
+
+
+// =========================
+// ENEMY TIERS
+// =========================
+
+
+const enemyTiers = {
+
+
+1:{
+    hp:1,
+    size:50,
+    color:"#00ff00"
+},
+
+
+2:{
+    hp:3,
+    size:52,
+    color:"#0066ff"
+},
+
+
+3:{
+    hp:5,
+    size:55,
+    color:"#ffff00"
+},
+
+
+4:{
+    hp:10,
+    size:58,
+    color:"#ff9900"
+},
+
+
+5:{
+    hp:25,
+    size:61,
+    color:"#ff0000"
+},
+
+
+6:{
+    hp:50,
+    size:64,
+    color:"#9900ff"
+},
+
+
+7:{
+    hp:100,
+    size:67,
+    color:"#111111"
+},
+
+
+8:{
+    hp:300,
+    size:70,
+    color:"#8b4513"
+},
+
+
+9:{
+    hp:750,
+    size:74,
+    color:"#ffffff"
+}
+
+
+};
+
+
+
+
+// =========================
 // PATH
-// =================
+// =========================
+
 
 let path=[];
 
 
 function updatePath(){
 
+
     path=[
 
-        {x:0,y:200},
+
+        {
+            x:0,
+            y:200
+        },
+
 
         {
             x:canvas.width*0.65,
             y:200
         },
 
+
         {
             x:canvas.width*0.65,
             y:canvas.height*0.7
         },
+
 
         {
             x:canvas.width,
             y:canvas.height*0.7
         }
 
+
     ];
+
 
 }
 
@@ -106,30 +203,59 @@ function updatePath(){
 updatePath();
 
 
-window.addEventListener("resize",updatePath);
+
+
+// =========================
+// OBJECT ARRAYS
+// =========================
+
+
+let enemies=[];
+
+let towers=[];
+
+let projectiles=[];
 
 
 
-// =================
-// SPAWN
-// =================
+// =========================
+// SPAWN ENEMY
+// =========================
 
-function spawnEnemy(){
+
+function spawnEnemy(tier){
+
+
+    let data = enemyTiers[tier];
 
 
     enemies.push({
+
 
         x:path[0].x,
 
         y:path[0].y,
 
-        hp:1,
 
-        maxHp:1,
+        tier:tier,
+
+
+        hp:data.hp,
+
+        maxHp:data.hp,
+
+
+        size:data.size,
+
+
+        color:data.color,
+
 
         speed:2,
 
+
         point:1
+
 
     });
 
@@ -138,85 +264,412 @@ function spawnEnemy(){
 
 
 
-setInterval(()=>{
+
+// =========================
+// START WAVE
+// =========================
 
 
-    if(!gameOver){
+function startWave(){
 
-        spawnEnemy();
+
+    currentWave++;
+
+    stage=currentWave;
+
+
+    waveInProgress=true;
+
+
+
+    // number of enemies
+
+    enemiesLeftToSpawn =
+    5 + currentWave * 2;
+
+
+
+}
+
+
+
+
+// =========================
+// CHOOSE ENEMY TIER
+// =========================
+
+
+function chooseTier(){
+
+
+    let chance=Math.random();
+
+
+
+    if(currentWave < 3){
+
+        return 1;
 
     }
 
 
-},1000);
+
+    if(currentWave < 5){
+
+        return chance < 0.8 ? 1 : 2;
+
+    }
 
 
 
-// =================
-// CLICK
-// =================
+    if(currentWave < 8){
+
+        if(chance < 0.7)
+            return 1;
+
+        if(chance < 0.95)
+            return 2;
+
+        return 3;
+
+    }
+
+
+
+    if(currentWave < 12){
+
+        if(chance < 0.5)
+            return 2;
+
+        if(chance < 0.85)
+            return 3;
+
+        return 4;
+
+    }
+
+
+
+    return Math.floor(Math.random()*5)+1;
+
+
+}
+
+
+
+
+// =========================
+// SPAWN TIMER
+// =========================
+
+
+let spawnCooldown=0;
+
+
+
+function handleWaves(){
+
+
+
+    if(gameOver)
+        return;
+
+
+
+
+    if(!waveInProgress){
+
+
+        waveTimer--;
+
+
+
+        if(waveTimer<=0){
+
+
+            startWave();
+
+
+        }
+
+
+        return;
+
+
+    }
+
+
+
+
+
+    if(
+        enemiesLeftToSpawn>0
+        &&
+        spawnCooldown<=0
+    ){
+
+
+
+        spawnEnemy(
+
+            chooseTier()
+
+        );
+
+
+
+        enemiesLeftToSpawn--;
+
+
+
+        spawnCooldown=40;
+
+
+
+    }
+
+
+
+    spawnCooldown--;
+
+
+
+    if(
+        enemiesLeftToSpawn<=0
+        &&
+        enemies.length===0
+    ){
+
+
+        waveInProgress=false;
+
+
+        coins+=100;
+
+
+        waveTimer=5;
+
+
+    }
+
+
+
+}
+
+// =========================
+// ENEMY MOVEMENT
+// =========================
+
+
+function moveEnemies(){
+
+
+    enemies.forEach((enemy,index)=>{
+
+
+        let target = path[enemy.point];
+
+
+        let dx = target.x - enemy.x;
+
+        let dy = target.y - enemy.y;
+
+
+        let distance = Math.sqrt(
+            dx*dx+
+            dy*dy
+        );
+
+
+
+        if(distance < enemy.speed){
+
+
+            enemy.x = target.x;
+
+            enemy.y = target.y;
+
+
+            enemy.point++;
+
+
+
+            if(enemy.point >= path.length){
+
+
+                lives--;
+
+
+                enemies.splice(
+                    index,
+                    1
+                );
+
+
+
+                if(lives<=0){
+
+                    lives=0;
+
+                    gameOver=true;
+
+                }
+
+
+            }
+
+
+        }
+        else{
+
+
+            enemy.x += 
+            (dx/distance)
+            *
+            enemy.speed;
+
+
+            enemy.y +=
+            (dy/distance)
+            *
+            enemy.speed;
+
+
+
+        }
+
+
+    });
+
+
+}
+
+
+
+
+
+// =========================
+// TOWER PLACEMENT
+// =========================
+
+
+let mouseX=0;
+
+let mouseY=0;
+
+
+let selectedTower=null;
+
+
+
+canvas.addEventListener("mousemove",(event)=>{
+
+
+    let rect=
+    canvas.getBoundingClientRect();
+
+
+    mouseX=
+    event.clientX-
+    rect.left;
+
+
+    mouseY=
+    event.clientY-
+    rect.top;
+
+
+});
+
+
+
+
 
 canvas.addEventListener("click",(event)=>{
 
 
-    let rect=canvas.getBoundingClientRect();
+    let rect=
+    canvas.getBoundingClientRect();
 
 
-    let x=event.clientX-rect.left;
-    let y=event.clientY-rect.top;
+    let x=
+    event.clientX-
+    rect.left;
+
+
+    let y=
+    event.clientY-
+    rect.top;
 
 
 
-    // SHOP
+    // SHOP BUTTON
 
     if(
         x<120 &&
         y>canvas.height-120
     ){
 
+
         selectedTower="arrow";
 
+
         return;
+
 
     }
 
 
 
 
+
     // PLACE TOWER
+
 
     if(selectedTower==="arrow"){
 
 
+
         if(
-            coins>=100 &&
+            coins>=100
+            &&
             !isOnPath(x,y)
         ){
 
 
+
             towers.push({
+
 
                 x:x,
 
                 y:y,
 
+
                 damage:1,
+
 
                 range:220,
 
+
                 cooldown:0,
+
 
                 fireRate:40,
 
+
                 angle:0
 
+
             });
+
 
 
             coins-=100;
 
 
         }
+
 
 
         selectedTower=null;
@@ -230,36 +683,62 @@ canvas.addEventListener("click",(event)=>{
 
 
 
-// =================
+
+
+// =========================
 // PATH CHECK
-// =================
+// =========================
+
 
 function isOnPath(x,y){
 
 
-    for(let i=0;i<path.length-1;i++){
+    for(
+        let i=0;
+        i<path.length-1;
+        i++
+    ){
+
 
 
         let a=path[i];
+
         let b=path[i+1];
 
 
+
         let dx=b.x-a.x;
+
         let dy=b.y-a.y;
 
 
-        let length=Math.sqrt(dx*dx+dy*dy);
+
+        let length=Math.sqrt(
+            dx*dx+
+            dy*dy
+        );
 
 
-        let t=((x-a.x)*dx+(y-a.y)*dy)
-        /(length*length);
+
+        let t=
+        (
+            (x-a.x)*dx+
+            (y-a.y)*dy
+        )
+        /
+        (length*length);
 
 
 
-        t=Math.max(0,Math.min(1,t));
+        t=Math.max(
+            0,
+            Math.min(1,t)
+        );
+
 
 
         let cx=a.x+t*dx;
+
         let cy=a.y+t*dy;
 
 
@@ -267,9 +746,11 @@ function isOnPath(x,y){
         let distance=Math.sqrt(
 
             (x-cx)**2+
+
             (y-cy)**2
 
         );
+
 
 
         if(distance<40){
@@ -279,6 +760,7 @@ function isOnPath(x,y){
         }
 
 
+
     }
 
 
@@ -286,83 +768,15 @@ function isOnPath(x,y){
 
 
 }
-// =================
-// MOVE ENEMIES
-// =================
-
-function moveEnemies(){
-
-
-    enemies.forEach((enemy,index)=>{
-
-
-        let target=path[enemy.point];
-
-
-        let dx=target.x-enemy.x;
-        let dy=target.y-enemy.y;
-
-
-        let distance=Math.sqrt(
-            dx*dx+dy*dy
-        );
 
 
 
-        if(distance < enemy.speed){
 
 
-            enemy.x=target.x;
-            enemy.y=target.y;
+// =========================
+// TOWER SHOOTING
+// =========================
 
-
-            enemy.point++;
-
-
-
-            if(enemy.point>=path.length){
-
-
-                lives--;
-
-
-                enemies.splice(index,1);
-
-
-
-                if(lives<=0){
-
-                    lives=0;
-                    gameOver=true;
-
-                }
-
-
-            }
-
-
-        }
-        else{
-
-
-            enemy.x+=(dx/distance)*enemy.speed;
-
-            enemy.y+=(dy/distance)*enemy.speed;
-
-
-        }
-
-
-    });
-
-
-}
-
-
-
-// =================
-// UPDATE TOWERS
-// =================
 
 function updateTowers(){
 
@@ -394,18 +808,24 @@ function updateTowers(){
             );
 
 
+
             if(distance<tower.range){
+
 
                 target=enemy;
 
+
             }
+
 
 
         });
 
 
 
+
         if(target){
+
 
 
             tower.angle=Math.atan2(
@@ -418,73 +838,101 @@ function updateTowers(){
 
 
 
+
             if(tower.cooldown<=0){
 
 
 
                 projectiles.push({
 
+
                     x:tower.x,
 
                     y:tower.y,
 
+
                     target:target,
+
 
                     speed:8,
 
+
                     damage:tower.damage,
 
+
                     angle:tower.angle
+
 
                 });
 
 
 
-                tower.cooldown=tower.fireRate;
+                tower.cooldown=
+                tower.fireRate;
 
 
             }
 
 
+
         }
 
 
+
     });
+
 
 
 }
 
 
 
-// =================
-// UPDATE PROJECTILES
-// =================
+
+
+// =========================
+// PROJECTILE MOVEMENT
+// =========================
+
 
 function updateProjectiles(){
+
 
 
     projectiles.forEach((arrow,index)=>{
 
 
+
         if(!arrow.target){
 
-            projectiles.splice(index,1);
+
+            projectiles.splice(
+                index,
+                1
+            );
+
 
             return;
+
 
         }
 
 
 
-        let dx=arrow.target.x-arrow.x;
 
-        let dy=arrow.target.y-arrow.y;
+
+        let dx=
+        arrow.target.x-arrow.x;
+
+
+        let dy=
+        arrow.target.y-arrow.y;
 
 
 
         let distance=Math.sqrt(
 
-            dx*dx+dy*dy
+            dx*dx+
+            dy*dy
 
         );
 
@@ -503,11 +951,18 @@ function updateProjectiles(){
         if(distance<arrow.speed){
 
 
+
             arrow.target.hp-=arrow.damage;
 
 
 
-            projectiles.splice(index,1);
+            projectiles.splice(
+
+                index,
+
+                1
+
+            );
 
 
 
@@ -515,16 +970,18 @@ function updateProjectiles(){
 
 
 
-                let enemyIndex=enemies.indexOf(
+                let i=
+                enemies.indexOf(
                     arrow.target
                 );
 
 
 
-                if(enemyIndex!=-1){
+                if(i!=-1){
+
 
                     enemies.splice(
-                        enemyIndex,
+                        i,
                         1
                     );
 
@@ -543,24 +1000,31 @@ function updateProjectiles(){
         else{
 
 
-            arrow.x+=(dx/distance)*arrow.speed;
+            arrow.x +=
+            (dx/distance)
+            *
+            arrow.speed;
 
-            arrow.y+=(dy/distance)*arrow.speed;
+
+            arrow.y +=
+            (dy/distance)
+            *
+            arrow.speed;
 
 
         }
 
 
+
     });
+
 
 
 }
 
-
-
-// =================
+// =========================
 // DRAW MAP
-// =================
+// =========================
 
 function drawMap(){
 
@@ -593,69 +1057,120 @@ function drawMap(){
     ctx.beginPath();
 
 
+
     ctx.moveTo(
+
         path[0].x,
+
         path[0].y
+
     );
+
 
 
     for(let i=1;i<path.length;i++){
 
 
         ctx.lineTo(
+
             path[i].x,
+
             path[i].y
+
         );
 
 
     }
 
 
+
     ctx.stroke();
+
 
 
 }
 
 
 
-// =================
+
+
+// =========================
 // DRAW ENEMIES
-// =================
+// =========================
+
 
 function drawEnemies(){
 
 
+
     enemies.forEach(enemy=>{
+
+
+        let size=enemy.size;
+
+
+
+        // enemy texture
 
 
         ctx.drawImage(
 
             enemyImg,
 
-            enemy.x-25,
+            enemy.x-size/2,
 
-            enemy.y-25,
+            enemy.y-size/2,
 
-            50,
+            size,
 
-            50
+            size
 
         );
 
 
 
+        // tier colour overlay
+
+
+        ctx.globalAlpha=0.25;
+
+
+
+        ctx.fillStyle=enemy.color;
+
+
+
+        ctx.fillRect(
+
+            enemy.x-size/2,
+
+            enemy.y-size/2,
+
+            size,
+
+            size
+
+        );
+
+
+
+        ctx.globalAlpha=1;
+
+
+
         // HP BAR
+
 
         ctx.fillStyle="black";
 
 
         ctx.fillRect(
 
-            enemy.x-25,
+            enemy.x-size/2,
 
-            enemy.y-40,
+            enemy.y-size/2-12,
 
-            50,
+            size,
 
             7
 
@@ -668,32 +1183,41 @@ function drawEnemies(){
 
         ctx.fillRect(
 
-            enemy.x-25,
+            enemy.x-size/2,
 
-            enemy.y-40,
+            enemy.y-size/2-12,
 
-            50*(enemy.hp/enemy.maxHp),
+            size*(enemy.hp/enemy.maxHp),
 
             7
 
         );
 
 
+
     });
+
 
 
 }
 
 
 
-// =================
+
+
+
+
+// =========================
 // DRAW TOWERS
-// =================
+// =========================
+
 
 function drawTowers(){
 
 
+
     towers.forEach(tower=>{
+
 
 
         ctx.save();
@@ -710,11 +1234,13 @@ function drawTowers(){
 
 
 
-        // sprite points down
+        // YOUR SPRITE FACES DOWN
+        // FIX AIMING DIRECTION
+
 
         ctx.rotate(
 
-            tower.angle + Math.PI/2
+            tower.angle - Math.PI/2
 
         );
 
@@ -739,21 +1265,30 @@ function drawTowers(){
         ctx.restore();
 
 
+
     });
+
 
 
 }
 
 
 
-// =================
-// DRAW PROJECTILES
-// =================
+
+
+
+
+// =========================
+// DRAW ARROWS
+// =========================
+
 
 function drawProjectiles(){
 
 
+
     projectiles.forEach(arrow=>{
+
 
 
         ctx.save();
@@ -770,25 +1305,31 @@ function drawProjectiles(){
 
 
 
+        // arrow texture faces down
+
+
         ctx.rotate(
 
-            arrow.angle + Math.PI/2
+            arrow.angle - Math.PI/2
 
         );
 
+
+
+        // 75% BIGGER ARROW
 
 
         ctx.drawImage(
 
             arrowPImg,
 
-            -10,
+            -17.5,
 
-            -10,
+            -17.5,
 
-            20,
+            35,
 
-            20
+            35
 
         );
 
@@ -797,24 +1338,37 @@ function drawProjectiles(){
         ctx.restore();
 
 
+
     });
+
 
 
 }
 
 
 
-// =================
+
+
+
+
+// =========================
 // RANGE CIRCLES
-// =================
+// =========================
+
 
 function drawRangeCircles(){
+
+
+
+    // tower placement preview
 
 
     if(selectedTower==="arrow"){
 
 
+
         ctx.beginPath();
+
 
 
         ctx.arc(
@@ -837,21 +1391,31 @@ function drawRangeCircles(){
         "rgba(0,150,255,0.5)";
 
 
+
         ctx.fill();
+
 
 
     }
 
 
 
+
+
+    // hover tower
+
+
     towers.forEach(tower=>{
+
 
 
         let distance=Math.sqrt(
 
+
             (mouseX-tower.x)**2+
 
             (mouseY-tower.y)**2
+
 
         );
 
@@ -889,19 +1453,20 @@ function drawRangeCircles(){
             ctx.fill();
 
 
+
         }
+
 
 
     });
 
 
+
 }
 
-
-
-// =================
+// =========================
 // UI
-// =================
+// =========================
 
 function drawUI(){
 
@@ -917,7 +1482,7 @@ function drawUI(){
 
         canvas.width,
 
-        50
+        55
 
     );
 
@@ -933,15 +1498,17 @@ function drawUI(){
     ctx.textAlign="left";
 
 
+
     ctx.fillText(
 
         "$"+coins,
 
         20,
 
-        32
+        35
 
     );
+
 
 
     ctx.fillText(
@@ -950,9 +1517,10 @@ function drawUI(){
 
         150,
 
-        32
+        35
 
     );
+
 
 
     ctx.fillText(
@@ -961,52 +1529,78 @@ function drawUI(){
 
         280,
 
-        32
+        35
 
     );
+
 
 
     ctx.fillText(
 
-        "Stage "+stage,
+        "Wave "+currentWave,
 
-        450,
+        420,
 
-        32
+        35
 
     );
+
+
+
+    if(!waveInProgress){
+
+
+        ctx.fillText(
+
+            "Next wave: "+Math.ceil(waveTimer),
+
+            570,
+
+            35
+
+        );
+
+
+    }
 
 
 
     ctx.textAlign="right";
 
 
+
     ctx.fillText(
 
-        "George TD v0.3.7",
+        "George TD v0.3.8",
 
         canvas.width-20,
 
-        32
+        35
 
     );
 
 
+
     ctx.textAlign="left";
+
 
 
 }
 
 
 
-// =================
+
+
+// =========================
 // SHOP
-// =================
+// =========================
 
 function drawShop(){
 
 
+
     ctx.fillStyle="#333";
+
 
 
     ctx.fillRect(
@@ -1042,7 +1636,9 @@ function drawShop(){
     ctx.fillStyle="white";
 
 
+
     ctx.font="italic 20px cursive";
+
 
 
     ctx.fillText(
@@ -1056,21 +1652,121 @@ function drawShop(){
     );
 
 
+
 }
 
 
 
-// =================
-// GAME LOOP
-// =================
+
+
+
+// =========================
+// GAME OVER
+// =========================
+
+function drawGameOver(){
+
+
+
+    if(!gameOver)
+
+        return;
+
+
+
+
+    ctx.fillStyle=
+    "rgba(0,0,0,0.7)";
+
+
+
+    ctx.fillRect(
+
+        0,
+
+        0,
+
+        canvas.width,
+
+        canvas.height
+
+    );
+
+
+
+
+    ctx.fillStyle="white";
+
+
+
+    ctx.textAlign="center";
+
+
+
+    ctx.font="60px Arial";
+
+
+
+    ctx.fillText(
+
+        "GAME OVER",
+
+        canvas.width/2,
+
+        canvas.height/2
+
+    );
+
+
+
+    ctx.font="25px Arial";
+
+
+
+    ctx.fillText(
+
+        "Reached Wave "+currentWave,
+
+        canvas.width/2,
+
+        canvas.height/2+50
+
+    );
+
+
+
+    ctx.textAlign="left";
+
+
+
+}
+
+
+
+
+
+
+
+// =========================
+// MAIN LOOP
+// =========================
 
 function gameLoop(){
+
+
+
+    // background + path
 
 
     drawMap();
 
 
-    drawRangeCircles();
+
+
+    // systems
+
+
+    handleWaves();
 
 
     moveEnemies();
@@ -1078,28 +1774,51 @@ function gameLoop(){
 
     updateTowers();
 
+
     updateProjectiles();
 
 
 
+
+
+    // visuals
+
+
+    drawRangeCircles();
+
+
     drawTowers();
 
+
     drawProjectiles();
+
 
     drawEnemies();
 
 
 
+
     drawUI();
+
 
     drawShop();
 
 
+    drawGameOver();
 
-    requestAnimationFrame(gameLoop);
+
+
+
+    requestAnimationFrame(
+
+        gameLoop
+
+    );
 
 
 }
+
+
 
 
 
