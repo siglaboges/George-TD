@@ -5,21 +5,28 @@ canvas.width = 900;
 canvas.height = 600;
 
 
-// Enemy image
+// =================
+// ENEMY IMAGE
+// =================
+
 const enemyImg = new Image();
 enemyImg.src = "sprite/enemy.png";
 
 
-// Enemy
-let enemy = {
-    x: 0,
-    y: 200,
-    speed: 2,
-    point: 1
-};
+// =================
+// PLAYER STATS
+// =================
+
+let coins = 500;
+let gems = 0;
+let lives = 100;
+let stage = 1;
 
 
-// Path
+// =================
+// PATH
+// =================
+
 const path = [
     {x:0, y:200},
     {x:600, y:200},
@@ -28,24 +35,38 @@ const path = [
 ];
 
 
+// =================
+// ENEMY
+// =================
+
+let enemy = {
+    x:0,
+    y:200,
+    speed:2,
+    point:1
+};
+
+
+// =================
+// DRAW MAP
+// =================
 
 function drawMap(){
 
-    // grass
-    ctx.fillStyle = "#6ac34a";
+    ctx.fillStyle="#6ac34a";
     ctx.fillRect(0,0,900,600);
 
 
-    // dirt path
-    ctx.strokeStyle = "#b88652";
-    ctx.lineWidth = 80;
-    ctx.lineCap = "round";
+    ctx.strokeStyle="#b88652";
+    ctx.lineWidth=80;
+    ctx.lineCap="round";
+
 
     ctx.beginPath();
 
     ctx.moveTo(path[0].x,path[0].y);
 
-    for(let i = 1; i < path.length; i++){
+    for(let i=1;i<path.length;i++){
         ctx.lineTo(path[i].x,path[i].y);
     }
 
@@ -54,6 +75,10 @@ function drawMap(){
 }
 
 
+
+// =================
+// MOVE ENEMY
+// =================
 
 function moveEnemy(){
 
@@ -73,25 +98,37 @@ function moveEnemy(){
 
         enemy.point++;
 
+
+        // enemy escaped
         if(enemy.point >= path.length){
 
-            enemy.x = 0;
-            enemy.y = 200;
-            enemy.point = 1;
+            lives--;
+
+            console.log("Lives:", lives);
+
+
+            // reset enemy
+            enemy.x=0;
+            enemy.y=200;
+            enemy.point=1;
 
         }
 
-    }
-    else {
 
-        enemy.x += (dx/distance) * enemy.speed;
-        enemy.y += (dy/distance) * enemy.speed;
+    } else {
+
+        enemy.x += (dx/distance)*enemy.speed;
+        enemy.y += (dy/distance)*enemy.speed;
 
     }
 
 }
 
 
+
+// =================
+// DRAW ENEMY
+// =================
 
 function drawEnemy(){
 
@@ -107,6 +144,36 @@ function drawEnemy(){
 
 
 
+// =================
+// UI
+// =================
+
+function drawUI(){
+
+    ctx.fillStyle="black";
+    ctx.fillRect(0,0,900,50);
+
+
+    ctx.fillStyle="white";
+    ctx.font="20px Arial";
+
+
+    ctx.fillText("$"+coins,20,32);
+
+    ctx.fillText("💎 "+gems,150,32);
+
+    ctx.fillText("❤️ "+lives,280,32);
+
+    ctx.fillText("Stage "+stage,450,32);
+
+}
+
+
+
+// =================
+// GAME LOOP
+// =================
+
 function gameLoop(){
 
     drawMap();
@@ -114,6 +181,8 @@ function gameLoop(){
     moveEnemy();
 
     drawEnemy();
+
+    drawUI();
 
 
     requestAnimationFrame(gameLoop);
