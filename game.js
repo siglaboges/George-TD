@@ -5,7 +5,9 @@ canvas.width = 900;
 canvas.height = 600;
 
 
+// =================
 // IMAGES
+// =================
 
 const enemyImg = new Image();
 enemyImg.src = "sprite/enemy.png";
@@ -17,7 +19,9 @@ const arrowPImg = new Image();
 arrowPImg.src = "sprite/arrowp.png";
 
 
+// =================
 // PLAYER
+// =================
 
 let coins = 500;
 let gems = Number(localStorage.getItem("gems")) || 0;
@@ -27,19 +31,39 @@ let stage = 1;
 let gameOver = false;
 
 
-// SHOP
+// =================
+// MOUSE
+// =================
+
+let mouseX = 0;
+let mouseY = 0;
 
 let selectedTower = null;
+let upgradeTower = null;
 
 
+canvas.addEventListener("mousemove", function(event){
+
+    let rect = canvas.getBoundingClientRect();
+
+    mouseX = event.clientX - rect.left;
+    mouseY = event.clientY - rect.top;
+
+});
+
+
+// =================
 // OBJECTS
+// =================
 
 let enemies = [];
 let towers = [];
 let projectiles = [];
 
 
+// =================
 // PATH
+// =================
 
 const path = [
     {x:0,y:200},
@@ -49,7 +73,9 @@ const path = [
 ];
 
 
-// SPAWN
+// =================
+// SPAWN ENEMIES
+// =================
 
 function spawnEnemy(){
 
@@ -59,6 +85,7 @@ function spawnEnemy(){
         y:200,
 
         hp:1,
+        maxHp:1,
 
         speed:2,
 
@@ -72,28 +99,36 @@ function spawnEnemy(){
 setInterval(()=>{
 
     if(!gameOver){
+
         spawnEnemy();
+
     }
 
 },1000);
 
 
 
-// CLICK PLACE TOWER
+// =================
+// CLICK SYSTEM
+// =================
 
 canvas.addEventListener("click",function(event){
 
+
     let rect = canvas.getBoundingClientRect();
 
-    let mouseX = event.clientX - rect.left;
-    let mouseY = event.clientY - rect.top;
+    let x = event.clientX - rect.left;
+    let y = event.clientY - rect.top;
 
+
+
+    // SHOP
 
     if(
-        mouseX >= 10 &&
-        mouseX <= 110 &&
-        mouseY >= 500 &&
-        mouseY <=590
+        x>=10 &&
+        x<=110 &&
+        y>=500 &&
+        y<=590
     ){
 
         selectedTower="arrow";
@@ -104,25 +139,68 @@ canvas.addEventListener("click",function(event){
 
 
 
-    if(selectedTower==="arrow" && coins>=100){
+    // CLICK EXISTING TOWER
 
-        towers.push({
-
-            x:mouseX,
-            y:mouseY,
-
-            range:220,
-
-            cooldown:0,
-
-            angle:0
-
-        });
+    for(let tower of towers){
 
 
-        coins-=100;
+        let distance=Math.sqrt(
+
+            (x-tower.x)**2+
+            (y-tower.y)**2
+
+        );
+
+
+        if(distance < 30){
+
+            upgradeTower=tower;
+            selectedTower=null;
+
+            return;
+
+        }
+
+
+    }
+
+
+
+    // PLACE TOWER
+
+    if(selectedTower==="arrow"){
+
+
+        if(coins>=100 && !isOnPath(x,y)){
+
+
+            towers.push({
+
+                x:x,
+                y:y,
+
+                damage:1,
+
+                range:220,
+
+                cooldown:0,
+
+                fireRate:40,
+
+                angle:0
+
+
+            });
+
+
+            coins-=100;
+
+
+        }
+
 
         selectedTower=null;
+
 
     }
 
@@ -131,18 +209,79 @@ canvas.addEventListener("click",function(event){
 
 
 
-// MOVE ENEMIES
+// =================
+// PATH CHECK
+// =================
+
+function isOnPath(x,y){
+
+
+    let width=80;
+
+
+    for(let i=0;i<path.length-1;i++){
+
+
+        let a=path[i];
+        let b=path[i+1];
+
+
+        let dx=b.x-a.x;
+        let dy=b.y-a.y;
+
+
+        let length=Math.sqrt(dx*dx+dy*dy);
+
+
+        let t=((x-a.x)*dx+(y-a.y)*dy)/(length*length);
+
+
+        t=Math.max(0,Math.min(1,t));
+
+
+        let cx=a.x+t*dx;
+        let cy=a.y+t*dy;
+
+
+        let distance=Math.sqrt(
+
+            (x-cx)**2+
+            (y-cy)**2
+
+        );
+
+
+        if(distance < width/2){
+
+            return true;
+
+        }
+
+
+    }
+
+
+    return false;
+
+}
+
+
+
+// =================
+// ENEMY MOVEMENT
+// =================
 
 function moveEnemies(){
+
 
     enemies.forEach((enemy,index)=>{
 
 
-        let target = path[enemy.point];
+        let target=path[enemy.point];
 
 
-        let dx = target.x-enemy.x;
-        let dy = target.y-enemy.y;
+        let dx=target.x-enemy.x;
+        let dy=target.y-enemy.y;
 
 
         let distance=Math.sqrt(dx*dx+dy*dy);
@@ -151,6 +290,7 @@ function moveEnemies(){
 
         if(distance < enemy.speed){
 
+
             enemy.x=target.x;
             enemy.y=target.y;
 
@@ -158,6 +298,7 @@ function moveEnemies(){
 
 
             if(enemy.point>=path.length){
+
 
                 lives--;
 
@@ -173,11 +314,14 @@ function moveEnemies(){
 
             }
 
+
         }
         else{
 
+
             enemy.x+=(dx/distance)*enemy.speed;
             enemy.y+=(dy/distance)*enemy.speed;
+
 
         }
 
@@ -189,7 +333,9 @@ function moveEnemies(){
 
 
 
-// TOWER AIM + SHOOT
+// =================
+// TOWER SHOOTING
+// =================
 
 function updateTowers(){
 
@@ -204,25 +350,23 @@ function updateTowers(){
         }
 
 
-        let closest=null;
-        let closestDistance=9999;
-
+        let target=null;
 
 
         enemies.forEach(enemy=>{
 
 
-            let dx=enemy.x-tower.x;
-            let dy=enemy.y-tower.y;
+            let distance=Math.sqrt(
+
+                (enemy.x-tower.x)**2+
+                (enemy.y-tower.y)**2
+
+            );
 
 
-            let distance=Math.sqrt(dx*dx+dy*dy);
+            if(distance<tower.range){
 
-
-            if(distance<tower.range && distance<closestDistance){
-
-                closest=enemy;
-                closestDistance=distance;
+                target=enemy;
 
             }
 
@@ -231,12 +375,15 @@ function updateTowers(){
 
 
 
-        if(closest){
+        if(target){
 
 
             tower.angle=Math.atan2(
-                closest.y-tower.y,
-                closest.x-tower.x
+
+                target.y-tower.y,
+
+                target.x-tower.x
+
             );
 
 
@@ -250,16 +397,19 @@ function updateTowers(){
 
                     y:tower.y,
 
-                    target:closest,
+                    target:target,
 
                     speed:7,
 
-                    damage:1
+                    damage:tower.damage,
+
+                    angle:tower.angle
+
 
                 });
 
 
-                tower.cooldown=40;
+                tower.cooldown=tower.fireRate;
 
 
             }
@@ -272,302 +422,3 @@ function updateTowers(){
 
 
 }
-
-
-
-// PROJECTILES
-
-function updateProjectiles(){
-
-
-    projectiles.forEach((arrow,index)=>{
-
-
-        if(!arrow.target){
-
-            projectiles.splice(index,1);
-            return;
-
-        }
-
-
-
-        let dx=arrow.target.x-arrow.x;
-        let dy=arrow.target.y-arrow.y;
-
-
-        let distance=Math.sqrt(dx*dx+dy*dy);
-
-
-
-        if(distance<arrow.speed){
-
-
-            arrow.target.hp-=arrow.damage;
-
-
-            projectiles.splice(index,1);
-
-
-
-            if(arrow.target.hp<=0){
-
-
-                let enemyIndex=enemies.indexOf(arrow.target);
-
-
-                if(enemyIndex!=-1){
-
-                    enemies.splice(enemyIndex,1);
-
-                    coins+=10;
-
-                }
-
-
-            }
-
-
-        }
-        else{
-
-
-            arrow.x+=(dx/distance)*arrow.speed;
-
-            arrow.y+=(dy/distance)*arrow.speed;
-
-
-        }
-
-
-    });
-
-
-}
-
-
-
-// DRAW ENEMIES
-
-function drawEnemies(){
-
-    enemies.forEach(enemy=>{
-
-
-        ctx.drawImage(
-            enemyImg,
-            enemy.x-25,
-            enemy.y-25,
-            50,
-            50
-        );
-
-
-
-        ctx.fillStyle="black";
-
-        ctx.fillRect(
-            enemy.x-25,
-            enemy.y-40,
-            50,
-            7
-        );
-
-
-        ctx.fillStyle="red";
-
-        ctx.fillRect(
-            enemy.x-25,
-            enemy.y-40,
-            50*(enemy.hp/1),
-            7
-        );
-
-
-    });
-
-}
-
-
-
-// DRAW TOWERS
-
-function drawTowers(){
-
-    towers.forEach(tower=>{
-
-
-        ctx.save();
-
-
-        ctx.translate(
-            tower.x,
-            tower.y
-        );
-
-
-        ctx.rotate(
-            tower.angle
-        );
-
-
-        ctx.drawImage(
-            arrowImg,
-            -25,
-            -25,
-            50,
-            50
-        );
-
-
-        ctx.restore();
-
-
-    });
-
-
-}
-
-
-
-// DRAW PROJECTILES
-
-function drawProjectiles(){
-
-    projectiles.forEach(arrow=>{
-
-
-        ctx.drawImage(
-            arrowPImg,
-            arrow.x-10,
-            arrow.y-10,
-            20,
-            20
-        );
-
-
-    });
-
-
-}
-
-
-
-// MAP
-
-function drawMap(){
-
-    ctx.fillStyle="#6ac34a";
-    ctx.fillRect(0,0,900,600);
-
-
-    ctx.strokeStyle="#b88652";
-    ctx.lineWidth=80;
-    ctx.lineCap="round";
-
-
-    ctx.beginPath();
-
-    ctx.moveTo(path[0].x,path[0].y);
-
-
-    for(let i=1;i<path.length;i++){
-
-        ctx.lineTo(
-            path[i].x,
-            path[i].y
-        );
-
-    }
-
-
-    ctx.stroke();
-
-}
-
-
-
-// UI
-
-function drawUI(){
-
-    ctx.fillStyle="black";
-    ctx.fillRect(0,0,900,50);
-
-
-    ctx.fillStyle="white";
-    ctx.font="20px Arial";
-
-
-    ctx.fillText("$"+coins,20,32);
-    ctx.fillText("💎 "+gems,150,32);
-    ctx.fillText("❤️ "+lives,280,32);
-    ctx.fillText("Stage "+stage,450,32);
-
-
-}
-
-
-
-// SHOP
-
-function drawShop(){
-
-    ctx.fillStyle="#333";
-
-    ctx.fillRect(10,500,100,90);
-
-
-    ctx.drawImage(
-        arrowImg,
-        35,
-        510,
-        50,
-        50
-    );
-
-
-    ctx.fillStyle="white";
-    ctx.font="italic 20px cursive";
-
-    ctx.fillText(
-        "100$",
-        30,
-        585
-    );
-
-}
-
-
-
-// LOOP
-
-function gameLoop(){
-
-    drawMap();
-
-    moveEnemies();
-
-    updateTowers();
-
-    updateProjectiles();
-
-
-    drawTowers();
-
-    drawProjectiles();
-
-    drawEnemies();
-
-
-    drawUI();
-
-    drawShop();
-
-
-    requestAnimationFrame(gameLoop);
-
-}
-
-
-gameLoop();
