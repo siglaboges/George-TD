@@ -50,19 +50,19 @@ var enemyBook = {
 
     7:{
         hp:100,
-        split:"1 Tier 1 + 1 Tier 6"
+        split:"1 Tier 6"
     },
 
 
     8:{
         hp:300,
-        split:"1 Tier 2 + 1 Tier 7"
+        split:"1 Tier 7"
     },
 
 
     9:{
         hp:750,
-        split:"1 Tier 1 + 1 Tier 8"
+        split:"1 Tier 8"
     }
 
 
@@ -88,7 +88,7 @@ function drawEnemyMenu(){
 
 
 
-    // BACKGROUND
+    // MENU BACKGROUND
 
     ctx.fillStyle =
     "rgba(0,0,0,0.85)";
@@ -139,8 +139,7 @@ function drawEnemyMenu(){
 
 
 
-
-    // ENEMY LIST
+    // ENEMY INFORMATION
 
     ctx.font="20px Arial";
 
