@@ -71,21 +71,12 @@ arrowPImg.src="sprite/arrowp.png";
 // PLAYER
 // =========================
 
-let coins = 500;
-
-let gems =
-Number(localStorage.getItem("gems"))
-|| 0;
-
-
-let lives = 100;
-
-let stage = 1;
-
-let currentWave = 0;
-
-let gameOver = false;
-
+var coins = 500;
+var gems = Number(localStorage.getItem("gems")) || 0;
+var lives = 100;
+var stage = 1;
+var currentWave = 0;
+var gameOver = false;
 
 
 // =========================
