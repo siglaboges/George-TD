@@ -520,3 +520,350 @@ function drawMap(){
 
 
 }
+// =========================
+// DRAW UI
+// =========================
+
+function drawUI(){
+
+
+    ctx.fillStyle="black";
+
+
+    ctx.fillRect(
+
+        0,
+        0,
+        canvas.width,
+        55
+
+    );
+
+
+
+    ctx.fillStyle="white";
+
+
+    ctx.font="20px Arial";
+
+
+    ctx.textAlign="left";
+
+
+
+    ctx.fillText(
+
+        "$"+coins,
+
+        20,
+
+        35
+
+    );
+
+
+
+    ctx.fillText(
+
+        "💎 "+gems,
+
+        150,
+
+        35
+
+    );
+
+
+
+    ctx.fillText(
+
+        "❤️ "+lives,
+
+        280,
+
+        35
+
+    );
+
+
+
+    ctx.fillText(
+
+        "Wave "+currentWave,
+
+        420,
+
+        35
+
+    );
+
+
+
+    ctx.textAlign="right";
+
+
+
+    ctx.fillText(
+
+        "George TD v0.4.4",
+
+        canvas.width-20,
+
+        35
+
+    );
+
+
+
+    ctx.textAlign="left";
+
+
+}
+
+
+
+
+
+
+
+
+// =========================
+// SHOP
+// =========================
+
+function drawShop(){
+
+
+
+    ctx.fillStyle="#333";
+
+
+    ctx.fillRect(
+
+        10,
+
+        canvas.height-120,
+
+        110,
+
+        100
+
+    );
+
+
+
+    ctx.drawImage(
+
+        arrowImg,
+
+        35,
+
+        canvas.height-110,
+
+        50,
+
+        50
+
+    );
+
+
+
+    ctx.fillStyle="white";
+
+
+    ctx.font="italic 20px cursive";
+
+
+    ctx.fillText(
+
+        "100$",
+
+        35,
+
+        canvas.height-35
+
+    );
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// =========================
+// GAME OVER
+// =========================
+
+function drawGameOver(){
+
+
+
+    if(!gameOver)
+        return;
+
+
+
+    ctx.fillStyle=
+    "rgba(0,0,0,0.7)";
+
+
+
+    ctx.fillRect(
+
+        0,
+
+        0,
+
+        canvas.width,
+
+        canvas.height
+
+    );
+
+
+
+    ctx.fillStyle="white";
+
+
+    ctx.textAlign="center";
+
+
+    ctx.font="60px Arial";
+
+
+    ctx.fillText(
+
+        "GAME OVER",
+
+        canvas.width/2,
+
+        canvas.height/2
+
+    );
+
+
+
+    ctx.font="25px Arial";
+
+
+    ctx.fillText(
+
+        "Reached Wave "+currentWave,
+
+        canvas.width/2,
+
+        canvas.height/2+50
+
+    );
+
+
+
+    ctx.textAlign="left";
+
+
+}
+
+
+
+
+
+
+
+
+
+// =========================
+// MAIN LOOP
+// =========================
+
+function gameLoop(){
+
+
+
+    drawMap();
+
+
+
+    handleWaves();
+
+
+    moveEnemies();
+
+
+
+    updateTowers();
+
+
+    updateProjectiles();
+
+
+
+
+
+    drawRangeCircles();
+
+
+    drawTowers();
+
+
+    drawProjectiles();
+
+
+    drawEnemies();
+
+
+
+
+
+    drawUI();
+
+
+    drawShop();
+
+
+    drawGameOver();
+
+
+
+
+
+    if(typeof drawEnemyMenu === "function"){
+
+
+        drawEnemyMenu();
+
+
+    }
+
+
+
+
+
+    requestAnimationFrame(
+
+        gameLoop
+
+    );
+
+
+
+}
+
+
+
+
+
+
+
+setTimeout(function(){
+
+
+    gameLoop();
+
+
+},100);
