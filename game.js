@@ -1,5 +1,5 @@
 // =========================
-// GEORGE TD v0.4.1
+// GEORGE TD v0.4.2
 // MAIN GAME
 // =========================
 
@@ -56,15 +56,15 @@ resizeCanvas();
 // =========================
 
 var enemyImg = new Image();
-enemyImg.src = "sprite/enemy.png";
+enemyImg.src="sprite/enemy.png";
 
 
 var arrowImg = new Image();
-arrowImg.src = "sprite/arrow.png";
+arrowImg.src="sprite/arrow.png";
 
 
 var arrowPImg = new Image();
-arrowPImg.src = "sprite/arrowp.png";
+arrowPImg.src="sprite/arrowp.png";
 
 
 
@@ -74,6 +74,7 @@ arrowPImg.src = "sprite/arrowp.png";
 // =========================
 
 var coins = 500;
+
 
 var gems =
 Number(localStorage.getItem("gems")) || 0;
@@ -94,7 +95,18 @@ var gameOver = false;
 
 
 // =========================
-// SHARED VARIABLES
+// MENUS
+// =========================
+
+var selectedTower = null;
+
+var enemyMenuOpen = false;
+
+
+
+
+// =========================
+// SHARED ARRAYS
 // =========================
 
 var enemies = [];
@@ -102,9 +114,6 @@ var enemies = [];
 var towers = [];
 
 var projectiles = [];
-
-
-var selectedTower = null;
 
 
 
@@ -119,7 +128,7 @@ var path = [];
 
 function updatePath(){
 
-    path = [
+    path=[
 
         {
             x:0,
@@ -127,18 +136,18 @@ function updatePath(){
         },
 
         {
-            x:GAME_WIDTH * 0.65,
+            x:GAME_WIDTH*0.65,
             y:200
         },
 
         {
-            x:GAME_WIDTH * 0.65,
-            y:GAME_HEIGHT * 0.7
+            x:GAME_WIDTH*0.65,
+            y:GAME_HEIGHT*0.7
         },
 
         {
             x:GAME_WIDTH,
-            y:GAME_HEIGHT * 0.7
+            y:GAME_HEIGHT*0.7
         }
 
     ];
@@ -146,7 +155,9 @@ function updatePath(){
 }
 
 
+
 updatePath();
+
 
 
 
@@ -155,8 +166,8 @@ updatePath();
 // MOUSE
 // =========================
 
-var mouseX = 0;
-var mouseY = 0;
+var mouseX=0;
+var mouseY=0;
 
 
 
@@ -171,20 +182,20 @@ function(event){
 
 
     mouseX =
-    (event.clientX - rect.left)
+    (event.clientX-rect.left)
     *
-    (canvas.width / rect.width);
+    (canvas.width/rect.width);
 
 
 
     mouseY =
-    (event.clientY - rect.top)
+    (event.clientY-rect.top)
     *
-    (canvas.height / rect.height);
-
+    (canvas.height/rect.height);
 
 
 });
+
 
 
 
@@ -205,27 +216,32 @@ function(event){
 
 
     var x =
-    (event.clientX - rect.left)
+    (event.clientX-rect.left)
     *
-    (canvas.width / rect.width);
+    (canvas.width/rect.width);
 
 
 
     var y =
-    (event.clientY - rect.top)
+    (event.clientY-rect.top)
     *
-    (canvas.height / rect.height);
+    (canvas.height/rect.height);
 
 
 
 
+
+    // ENEMY BUTTON
 
     if(
-        x < 120 &&
-        y > canvas.height - 120
+        x > canvas.width-220 &&
+        x < canvas.width-100 &&
+        y < 55
     ){
 
-        selectedTower = "arrow";
+        enemyMenuOpen =
+        !enemyMenuOpen;
+
 
         return;
 
@@ -234,13 +250,38 @@ function(event){
 
 
 
-    if(selectedTower === "arrow"){
+
+
+    // SHOP BUTTON
+
+
+    if(
+        x < 120 &&
+        y > canvas.height-120
+    ){
+
+        selectedTower="arrow";
+
+
+        return;
+
+    }
+
+
+
+
+
+
+    // PLACE TOWER
+
+
+    if(selectedTower==="arrow"){
 
 
         placeTower(x,y);
 
 
-        selectedTower = null;
+        selectedTower=null;
 
 
     }
@@ -248,6 +289,8 @@ function(event){
 
 
 });
+
+
 
 
 
@@ -318,6 +361,7 @@ function drawMap(){
 
 
 
+
 // =========================
 // UI
 // =========================
@@ -343,11 +387,16 @@ function drawUI(){
     ctx.font="20px Arial";
 
 
+    ctx.textAlign="left";
+
+
+
     ctx.fillText(
         "$"+coins,
         20,
         35
     );
+
 
 
     ctx.fillText(
@@ -357,11 +406,13 @@ function drawUI(){
     );
 
 
+
     ctx.fillText(
         "❤️ "+lives,
         280,
         35
     );
+
 
 
     ctx.fillText(
@@ -384,20 +435,32 @@ function drawUI(){
 
 
 
+
     ctx.textAlign="right";
 
 
+
     ctx.fillText(
-        "George TD v0.4.1",
-        canvas.width-20,
+        "Enemies",
+        canvas.width-120,
         35
     );
+
+
+
+    ctx.fillText(
+        "George TD v0.4.2",
+        canvas.width-20,
+        80
+    );
+
 
 
     ctx.textAlign="left";
 
 
 }
+
 
 
 
@@ -461,7 +524,7 @@ function drawGameOver(){
 
 
     if(!gameOver)
-        return;
+    return;
 
 
 
@@ -493,6 +556,9 @@ function drawGameOver(){
     );
 
 
+
+    ctx.textAlign="left";
+
 }
 
 
@@ -500,8 +566,10 @@ function drawGameOver(){
 
 
 
+
+
 // =========================
-// LOOP
+// GAME LOOP
 // =========================
 
 function gameLoop(){
@@ -543,6 +611,9 @@ function gameLoop(){
 
 
     drawGameOver();
+
+
+    drawEnemyMenu();
 
 
 
