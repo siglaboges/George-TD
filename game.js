@@ -1,5 +1,5 @@
 // =========================
-// GEORGE TD v0.4.2
+// GEORGE TD v0.4.3
 // MAIN GAME
 // =========================
 
@@ -69,6 +69,7 @@ arrowPImg.src="sprite/arrowp.png";
 
 
 
+
 // =========================
 // PLAYER
 // =========================
@@ -94,11 +95,13 @@ var gameOver = false;
 
 
 
+
 // =========================
 // MENUS
 // =========================
 
 var selectedTower = null;
+
 
 var enemyMenuOpen = false;
 
@@ -106,14 +109,28 @@ var enemyMenuOpen = false;
 
 
 // =========================
-// SHARED ARRAYS
+// TOWER PLACEMENT
 // =========================
 
-var enemies = [];
+var invalidPlacement = false;
 
-var towers = [];
 
-var projectiles = [];
+
+
+
+
+// =========================
+// ARRAYS
+// =========================
+
+var enemies=[];
+
+var towers=[];
+
+var projectiles=[];
+
+
+
 
 
 
@@ -122,41 +139,50 @@ var projectiles = [];
 // PATH
 // =========================
 
-var path = [];
+var path=[];
 
 
 
 function updatePath(){
 
+
     path=[
+
 
         {
             x:0,
             y:200
         },
 
+
         {
             x:GAME_WIDTH*0.65,
             y:200
         },
 
+
         {
             x:GAME_WIDTH*0.65,
             y:GAME_HEIGHT*0.7
         },
+
 
         {
             x:GAME_WIDTH,
             y:GAME_HEIGHT*0.7
         }
 
+
     ];
+
 
 }
 
 
-
 updatePath();
+
+
+
 
 
 
@@ -167,6 +193,7 @@ updatePath();
 // =========================
 
 var mouseX=0;
+
 var mouseY=0;
 
 
@@ -194,6 +221,7 @@ function(event){
     (canvas.height/rect.height);
 
 
+
 });
 
 
@@ -201,13 +229,80 @@ function(event){
 
 
 
+
+
+
 // =========================
-// CLICK INPUT
+// CHECK TOWER PLACEMENT
+// =========================
+
+function canPlaceTower(x,y){
+
+
+
+    if(coins < 100)
+        return false;
+
+
+
+    if(isOnPath(x,y))
+        return false;
+
+
+
+
+
+    for(
+        var i=0;
+        i<towers.length;
+        i++
+    ){
+
+
+        var distance =
+        Math.sqrt(
+
+            (x-towers[i].x)**2+
+            (y-towers[i].y)**2
+
+        );
+
+
+
+        if(distance < 55){
+
+            return false;
+
+        }
+
+
+    }
+
+
+
+
+
+    return true;
+
+
+}
+
+
+
+
+
+
+
+
+
+// =========================
+// CLICK
 // =========================
 
 canvas.addEventListener(
 "click",
 function(event){
+
 
 
     var rect =
@@ -231,7 +326,6 @@ function(event){
 
 
 
-    // ENEMY BUTTON
 
     if(
         x > canvas.width-220 &&
@@ -252,16 +346,12 @@ function(event){
 
 
 
-    // SHOP BUTTON
-
-
     if(
         x < 120 &&
         y > canvas.height-120
     ){
 
         selectedTower="arrow";
-
 
         return;
 
@@ -272,16 +362,22 @@ function(event){
 
 
 
-    // PLACE TOWER
-
-
     if(selectedTower==="arrow"){
 
 
-        placeTower(x,y);
+
+        if(canPlaceTower(x,y)){
+
+
+            placeTower(x,y);
+
+
+        }
+
 
 
         selectedTower=null;
+
 
 
     }
@@ -305,14 +401,17 @@ function(event){
 function drawMap(){
 
 
+
     ctx.fillStyle="#6ac34a";
 
 
     ctx.fillRect(
+
         0,
         0,
         canvas.width,
         canvas.height
+
     );
 
 
@@ -347,6 +446,7 @@ function drawMap(){
             path[i].y
         );
 
+
     }
 
 
@@ -355,6 +455,7 @@ function drawMap(){
 
 
 }
+
 
 
 
@@ -385,9 +486,6 @@ function drawUI(){
 
 
     ctx.font="20px Arial";
-
-
-    ctx.textAlign="left";
 
 
 
@@ -423,21 +521,7 @@ function drawUI(){
 
 
 
-    if(!waveInProgress){
-
-        ctx.fillText(
-            "Next wave: "+Math.ceil(waveTimer),
-            570,
-            35
-        );
-
-    }
-
-
-
-
     ctx.textAlign="right";
-
 
 
     ctx.fillText(
@@ -449,17 +533,18 @@ function drawUI(){
 
 
     ctx.fillText(
-        "George TD v0.4.2",
+        "George TD v0.4.3",
         canvas.width-20,
         80
     );
-
 
 
     ctx.textAlign="left";
 
 
 }
+
+
 
 
 
@@ -474,24 +559,36 @@ function drawUI(){
 function drawShop(){
 
 
+
     ctx.fillStyle="#333";
 
 
     ctx.fillRect(
+
         10,
+
         canvas.height-120,
+
         110,
+
         100
+
     );
 
 
 
     ctx.drawImage(
+
         arrowImg,
+
         35,
+
         canvas.height-110,
+
         50,
+
         50
+
     );
 
 
@@ -503,9 +600,13 @@ function drawShop(){
 
 
     ctx.fillText(
+
         "100$",
+
         35,
+
         canvas.height-35
+
     );
 
 
@@ -516,63 +617,14 @@ function drawShop(){
 
 
 
-// =========================
-// GAME OVER
-// =========================
-
-function drawGameOver(){
-
-
-    if(!gameOver)
-    return;
-
-
-
-    ctx.fillStyle="rgba(0,0,0,0.7)";
-
-
-    ctx.fillRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
-
-
-
-    ctx.fillStyle="white";
-
-
-    ctx.textAlign="center";
-
-
-    ctx.font="60px Arial";
-
-
-    ctx.fillText(
-        "GAME OVER",
-        canvas.width/2,
-        canvas.height/2
-    );
-
-
-
-    ctx.textAlign="left";
-
-}
-
-
-
-
-
-
 
 
 // =========================
-// GAME LOOP
+// LOOP
 // =========================
 
 function gameLoop(){
+
 
 
     drawMap();
@@ -623,6 +675,7 @@ function gameLoop(){
 
 
 }
+
 
 
 
