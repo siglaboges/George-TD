@@ -72,14 +72,13 @@ const enemyTiers = {
 // WAVE SYSTEM
 // =========================
 
-let enemiesLeftToSpawn = 0;
+var enemiesLeftToSpawn = 0;
 
-let waveInProgress = false;
+var waveInProgress = false;
 
-let waveTimer = 5;
+var waveTimer = 5;
 
-let spawnCooldown = 0;
-
+var spawnCooldown = 0;
 
 
 // =========================
