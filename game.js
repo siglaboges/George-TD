@@ -8,8 +8,8 @@
 // CANVAS
 // =========================
 
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+var canvas = document.getElementById("gameCanvas");
+var ctx = canvas.getContext("2d");
 
 
 const GAME_WIDTH = 1280;
