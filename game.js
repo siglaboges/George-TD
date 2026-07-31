@@ -1,5 +1,5 @@
 // =========================
-// GEORGE TD v0.4.3
+// GEORGE TD v0.4.4
 // MAIN GAME
 // =========================
 
@@ -39,6 +39,7 @@ function resizeCanvas(){
 }
 
 
+
 window.addEventListener(
     "resize",
     resizeCanvas
@@ -46,6 +47,7 @@ window.addEventListener(
 
 
 resizeCanvas();
+
 
 
 
@@ -68,27 +70,25 @@ arrowPImg.src="sprite/arrowp.png";
 
 
 
+
+
 // =========================
 // PLAYER
 // =========================
 
 var coins = 500;
 
-
 var gems =
 Number(localStorage.getItem("gems")) || 0;
 
-
 var lives = 100;
-
 
 var stage = 1;
 
-
 var currentWave = 0;
 
-
 var gameOver = false;
+
 
 
 
@@ -102,8 +102,9 @@ var selectedTower = null;
 
 var enemyMenuOpen = false;
 
-
 var invalidPlacement = false;
+
+
 
 
 
@@ -113,11 +114,13 @@ var invalidPlacement = false;
 // ARRAYS
 // =========================
 
-var enemies = [];
+var enemies=[];
 
-var towers = [];
+var towers=[];
 
-var projectiles = [];
+var projectiles=[];
+
+
 
 
 
@@ -127,7 +130,7 @@ var projectiles = [];
 // PATH
 // =========================
 
-var path = [];
+var path=[];
 
 
 
@@ -140,18 +143,15 @@ function updatePath(){
             y:200
         },
 
-
         {
             x:GAME_WIDTH*0.65,
             y:200
         },
 
-
         {
             x:GAME_WIDTH*0.65,
             y:GAME_HEIGHT*0.7
         },
-
 
         {
             x:GAME_WIDTH,
@@ -170,12 +170,15 @@ updatePath();
 
 
 
+
+
 // =========================
 // MOUSE
 // =========================
 
-var mouseX = 0;
-var mouseY = 0;
+var mouseX=0;
+
+var mouseY=0;
 
 
 
@@ -190,19 +193,21 @@ function(event){
 
 
     mouseX =
-    (event.clientX - rect.left)
+    (event.clientX-rect.left)
     *
-    (canvas.width / rect.width);
+    (canvas.width/rect.width);
 
 
 
     mouseY =
-    (event.clientY - rect.top)
+    (event.clientY-rect.top)
     *
-    (canvas.height / rect.height);
+    (canvas.height/rect.height);
+
 
 
 });
+
 
 
 
@@ -224,20 +229,19 @@ function isOnPath(x,y){
     ){
 
 
-        var a = path[i];
+        var a=path[i];
 
-        var b = path[i+1];
-
-
-        var dx = b.x-a.x;
-
-        var dy = b.y-a.y;
+        var b=path[i+1];
 
 
+        var dx=b.x-a.x;
 
-        var length = Math.sqrt(
-            dx*dx+
-            dy*dy
+        var dy=b.y-a.y;
+
+
+
+        var length=Math.sqrt(
+            dx*dx+dy*dy
         );
 
 
@@ -263,24 +267,27 @@ function isOnPath(x,y){
         a.x+t*dx;
 
 
+
         var cy =
         a.y+t*dy;
 
 
 
-        var distance =
-        Math.sqrt(
+        var distance=Math.sqrt(
+
             (x-cx)**2+
             (y-cy)**2
+
         );
 
 
 
-        if(distance < 40){
+        if(distance<40){
 
             return true;
 
         }
+
 
     }
 
@@ -288,7 +295,9 @@ function isOnPath(x,y){
 
     return false;
 
+
 }
+
 
 
 
@@ -303,13 +312,16 @@ function isOnPath(x,y){
 function canPlaceTower(x,y){
 
 
-    if(coins < 100)
+
+    if(coins<100)
         return false;
 
 
 
     if(isOnPath(x,y))
         return false;
+
+
 
 
 
@@ -320,8 +332,8 @@ function canPlaceTower(x,y){
     ){
 
 
-        var distance =
-        Math.sqrt(
+
+        var distance=Math.sqrt(
 
             (x-towers[i].x)**2+
             (y-towers[i].y)**2
@@ -330,13 +342,18 @@ function canPlaceTower(x,y){
 
 
 
-        if(distance < 55){
+        // v0.4.4 smaller restriction
+
+        if(distance<25){
 
             return false;
 
         }
 
+
     }
+
+
 
 
 
@@ -350,6 +367,8 @@ function canPlaceTower(x,y){
 
 
 
+
+
 // =========================
 // CLICK
 // =========================
@@ -357,6 +376,7 @@ function canPlaceTower(x,y){
 canvas.addEventListener(
 "click",
 function(event){
+
 
 
     var rect =
@@ -380,40 +400,28 @@ function(event){
 
 
 
-    if(
-        x > canvas.width-220 &&
-        x < canvas.width-100 &&
-        y < 55
-    ){
-
-        enemyMenuOpen =
-        !enemyMenuOpen;
-
-
-        return;
-
-    }
-
-
-
-
 
     if(
-        x < 120 &&
-        y > canvas.height-120
+        x<120 &&
+        y>canvas.height-120
     ){
+
 
         selectedTower="arrow";
 
+
         return;
 
+
     }
+
 
 
 
 
 
     if(selectedTower==="arrow"){
+
 
 
         if(canPlaceTower(x,y)){
@@ -425,13 +433,24 @@ function(event){
         }
 
 
+
         selectedTower=null;
 
 
     }
 
 
+
 });
+
+
+
+
+
+
+
+
+
 // =========================
 // DRAW MAP
 // =========================
@@ -501,355 +520,3 @@ function drawMap(){
 
 
 }
-
-
-
-
-
-
-
-
-// =========================
-// DRAW UI
-// =========================
-
-function drawUI(){
-
-
-    ctx.fillStyle="black";
-
-
-    ctx.fillRect(
-
-        0,
-        0,
-        canvas.width,
-        55
-
-    );
-
-
-
-    ctx.fillStyle="white";
-
-
-    ctx.font="20px Arial";
-
-
-    ctx.textAlign="left";
-
-
-
-    ctx.fillText(
-
-        "$"+coins,
-
-        20,
-
-        35
-
-    );
-
-
-
-    ctx.fillText(
-
-        "💎 "+gems,
-
-        150,
-
-        35
-
-    );
-
-
-
-    ctx.fillText(
-
-        "❤️ "+lives,
-
-        280,
-
-        35
-
-    );
-
-
-
-    ctx.fillText(
-
-        "Wave "+currentWave,
-
-        420,
-
-        35
-
-    );
-
-
-
-    ctx.textAlign="right";
-
-
-
-    ctx.fillText(
-
-        "Enemies",
-
-        canvas.width-120,
-
-        35
-
-    );
-
-
-
-    ctx.fillText(
-
-        "George TD v0.4.3",
-
-        canvas.width-20,
-
-        80
-
-    );
-
-
-
-    ctx.textAlign="left";
-
-
-}
-
-
-
-
-
-
-
-// =========================
-// SHOP
-// =========================
-
-function drawShop(){
-
-
-    ctx.fillStyle="#333";
-
-
-    ctx.fillRect(
-
-        10,
-
-        canvas.height-120,
-
-        110,
-
-        100
-
-    );
-
-
-
-    ctx.drawImage(
-
-        arrowImg,
-
-        35,
-
-        canvas.height-110,
-
-        50,
-
-        50
-
-    );
-
-
-
-    ctx.fillStyle="white";
-
-
-    ctx.font="italic 20px cursive";
-
-
-    ctx.fillText(
-
-        "100$",
-
-        35,
-
-        canvas.height-35
-
-    );
-
-
-}
-
-
-
-
-
-
-
-
-// =========================
-// GAME OVER
-// =========================
-
-function drawGameOver(){
-
-
-    if(!gameOver)
-        return;
-
-
-
-    ctx.fillStyle="rgba(0,0,0,0.7)";
-
-
-
-    ctx.fillRect(
-
-        0,
-
-        0,
-
-        canvas.width,
-
-        canvas.height
-
-    );
-
-
-
-    ctx.fillStyle="white";
-
-
-    ctx.textAlign="center";
-
-
-    ctx.font="60px Arial";
-
-
-
-    ctx.fillText(
-
-        "GAME OVER",
-
-        canvas.width/2,
-
-        canvas.height/2
-
-    );
-
-
-
-    ctx.font="25px Arial";
-
-
-
-    ctx.fillText(
-
-        "Reached Wave "+currentWave,
-
-        canvas.width/2,
-
-        canvas.height/2+50
-
-    );
-
-
-
-    ctx.textAlign="left";
-
-
-}
-
-
-
-
-
-
-
-
-// =========================
-// MAIN LOOP
-// =========================
-
-function gameLoop(){
-
-
-    drawMap();
-
-
-
-    handleWaves();
-
-
-    moveEnemies();
-
-
-
-    updateTowers();
-
-
-    updateProjectiles();
-
-
-
-
-
-    drawRangeCircles();
-
-
-
-    drawTowers();
-
-
-    drawProjectiles();
-
-
-    drawEnemies();
-
-
-
-
-
-    drawUI();
-
-
-    drawShop();
-
-
-    drawGameOver();
-
-
-    drawEnemyMenu();
-
-
-
-
-
-    requestAnimationFrame(
-
-        gameLoop
-
-    );
-
-
-}
-
-
-
-
-
-
-
-setTimeout(function(){
-
-
-    gameLoop();
-
-
-},100);
