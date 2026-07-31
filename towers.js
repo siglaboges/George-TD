@@ -1,94 +1,59 @@
 // =========================
-// GEORGE TD v0.4.0
+// GEORGE TD v0.4.1
 // TOWERS + PROJECTILES
 // =========================
 
 
+
 // =========================
-// MOUSE + TOWER PLACEMENT
+// PLACE TOWER
 // =========================
 
-canvas.addEventListener("click",(event)=>{
+function placeTower(x,y){
 
-
-    let rect = canvas.getBoundingClientRect();
-
-
-    let x =
-    (event.clientX - rect.left)
-    *
-    (canvas.width / rect.width);
-
-
-    let y =
-    (event.clientY - rect.top)
-    *
-    (canvas.height / rect.height);
-
-
-
-    // SHOP BUTTON
 
     if(
-        x < 120 &&
-        y > canvas.height-120
+        coins >= 100
+        &&
+        !isOnPath(x,y)
     ){
 
-        selectedTower="arrow";
-
-        return;
-
-    }
 
 
+        towers.push({
+
+            x:x,
+
+            y:y,
 
 
-    // PLACE TOWER
-
-    if(selectedTower==="arrow"){
+            damage:1,
 
 
-        if(
-            coins>=100
-            &&
-            !isOnPath(x,y)
-        ){
+            range:220,
 
 
-            towers.push({
+            cooldown:0,
 
-                x:x,
 
-                y:y,
+            fireRate:40,
 
-                damage:1,
 
-                range:220,
+            angle:0
 
-                cooldown:0,
 
-                fireRate:40,
-
-                angle:0
-
-            });
+        });
 
 
 
-            coins-=100;
-
-
-        }
-
-
-
-        selectedTower=null;
+        coins -= 100;
 
 
     }
 
 
-});
+}
+
 
 
 
@@ -101,58 +66,78 @@ canvas.addEventListener("click",(event)=>{
 function isOnPath(x,y){
 
 
+
     for(
-        let i=0;
+        var i=0;
         i<path.length-1;
         i++
     ){
 
 
-        let a=path[i];
 
-        let b=path[i+1];
+        var a = path[i];
 
-
-
-        let dx=b.x-a.x;
-
-        let dy=b.y-a.y;
+        var b = path[i+1];
 
 
 
-        let length=Math.sqrt(
+        var dx = b.x-a.x;
+
+        var dy = b.y-a.y;
+
+
+
+        var length = Math.sqrt(
+
             dx*dx+
+
             dy*dy
+
         );
 
 
 
-        let t =
+        var t =
+
         (
-            (x-a.x)*dx+
+
+            (x-a.x)*dx +
+
             (y-a.y)*dy
+
         )
+
         /
+
         (length*length);
 
 
 
-        t=Math.max(
+
+
+        t = Math.max(
+
             0,
+
             Math.min(1,t)
+
         );
 
 
 
-        let cx=a.x+t*dx;
-
-        let cy=a.y+t*dy;
 
 
+        var cx = a.x + t*dx;
 
-        let distance=Math.sqrt(
+        var cy = a.y + t*dy;
 
-            (x-cx)**2+
+
+
+
+
+        var distance = Math.sqrt(
+
+            (x-cx)**2 +
 
             (y-cy)**2
 
@@ -160,20 +145,26 @@ function isOnPath(x,y){
 
 
 
-        if(distance<40){
+
+
+        if(distance < 40){
 
             return true;
 
         }
 
 
+
     }
+
 
 
     return false;
 
 
 }
+
+
 
 
 
@@ -186,10 +177,12 @@ function isOnPath(x,y){
 function updateTowers(){
 
 
-    towers.forEach(tower=>{
+
+    towers.forEach(function(tower){
 
 
-        if(tower.cooldown>0){
+
+        if(tower.cooldown > 0){
 
             tower.cooldown--;
 
@@ -197,16 +190,19 @@ function updateTowers(){
 
 
 
-        let target=null;
+
+        var target = null;
 
 
 
-        enemies.forEach(enemy=>{
+
+        enemies.forEach(function(enemy){
 
 
-            let distance=Math.sqrt(
 
-                (enemy.x-tower.x)**2+
+            var distance = Math.sqrt(
+
+                (enemy.x-tower.x)**2 +
 
                 (enemy.y-tower.y)**2
 
@@ -214,16 +210,18 @@ function updateTowers(){
 
 
 
-            if(distance<tower.range){
+            if(distance < tower.range){
 
 
-                target=enemy;
+                target = enemy;
 
 
             }
 
 
+
         });
+
 
 
 
@@ -233,7 +231,7 @@ function updateTowers(){
 
 
 
-            tower.angle=Math.atan2(
+            tower.angle = Math.atan2(
 
                 target.y-tower.y,
 
@@ -245,23 +243,32 @@ function updateTowers(){
 
 
 
-            if(tower.cooldown<=0){
+
+
+            if(tower.cooldown <= 0){
+
 
 
                 projectiles.push({
 
+
                     x:tower.x,
 
+
                     y:tower.y,
+
 
 
                     target:target,
 
 
+
                     speed:8,
 
 
+
                     damage:tower.damage,
+
 
 
                     angle:tower.angle
@@ -271,17 +278,22 @@ function updateTowers(){
 
 
 
+
                 tower.cooldown =
                 tower.fireRate;
+
 
 
             }
 
 
+
         }
 
 
+
     });
+
 
 
 }
@@ -290,22 +302,31 @@ function updateTowers(){
 
 
 
+
+
+
 // =========================
-// PROJECTILE MOVEMENT
+// PROJECTILES
 // =========================
 
 function updateProjectiles(){
 
 
-    projectiles.forEach((arrow,index)=>{
+
+    projectiles.forEach(function(arrow,index){
+
 
 
         if(!arrow.target){
 
 
+
             projectiles.splice(
+
                 index,
+
                 1
+
             );
 
 
@@ -318,26 +339,31 @@ function updateProjectiles(){
 
 
 
-        let dx =
+
+        var dx =
         arrow.target.x-arrow.x;
 
 
-        let dy =
+
+        var dy =
         arrow.target.y-arrow.y;
 
 
 
-        let distance =
-        Math.sqrt(
+
+        var distance = Math.sqrt(
 
             dx*dx+
+
             dy*dy
 
         );
 
 
 
-        arrow.angle=Math.atan2(
+
+
+        arrow.angle = Math.atan2(
 
             dy,
 
@@ -349,12 +375,13 @@ function updateProjectiles(){
 
 
 
+
         if(distance < arrow.speed){
 
 
 
-            arrow.target.hp -=
-            arrow.damage;
+            arrow.target.hp -= arrow.damage;
+
 
 
 
@@ -370,30 +397,40 @@ function updateProjectiles(){
 
 
 
-            if(arrow.target.hp<=0){
+
+            if(arrow.target.hp <= 0){
 
 
 
-                let i =
+                var enemyIndex =
                 enemies.indexOf(
+
                     arrow.target
+
                 );
 
 
 
-                if(i!=-1){
+
+                if(enemyIndex != -1){
+
 
 
                     enemies.splice(
-                        i,
+
+                        enemyIndex,
+
                         1
+
                     );
 
 
-                    coins+=10;
+
+                    coins += 10;
 
 
                 }
+
 
 
             }
@@ -404,26 +441,41 @@ function updateProjectiles(){
         else{
 
 
+
             arrow.x +=
+
             (dx/distance)
+
             *
+
             arrow.speed;
+
 
 
 
             arrow.y +=
+
             (dy/distance)
+
             *
+
             arrow.speed;
+
 
 
         }
 
 
+
+
     });
 
 
+
 }
+
+
+
 
 
 
@@ -436,7 +488,9 @@ function updateProjectiles(){
 function drawTowers(){
 
 
-    towers.forEach(tower=>{
+
+    towers.forEach(function(tower){
+
 
 
         ctx.save();
@@ -453,11 +507,13 @@ function drawTowers(){
 
 
 
+
         ctx.rotate(
 
             tower.angle - Math.PI/2
 
         );
+
 
 
 
@@ -480,10 +536,15 @@ function drawTowers(){
         ctx.restore();
 
 
+
     });
 
 
+
 }
+
+
+
 
 
 
@@ -496,7 +557,9 @@ function drawTowers(){
 function drawProjectiles(){
 
 
-    projectiles.forEach(arrow=>{
+
+    projectiles.forEach(function(arrow){
+
 
 
         ctx.save();
@@ -513,11 +576,13 @@ function drawProjectiles(){
 
 
 
+
         ctx.rotate(
 
             arrow.angle - Math.PI/2
 
         );
+
 
 
 
@@ -540,10 +605,15 @@ function drawProjectiles(){
         ctx.restore();
 
 
+
     });
 
 
+
 }
+
+
+
 
 
 
@@ -557,13 +627,15 @@ function drawRangeCircles(){
 
 
 
-    // tower preview
+    // placing preview
 
 
-    if(selectedTower==="arrow"){
+    if(selectedTower === "arrow"){
+
 
 
         ctx.beginPath();
+
 
 
         ctx.arc(
@@ -590,21 +662,24 @@ function drawRangeCircles(){
         ctx.fill();
 
 
+
     }
 
 
 
 
 
-    // existing tower hover
+
+    // tower hover
 
 
-    towers.forEach(tower=>{
+    towers.forEach(function(tower){
 
 
-        let distance=Math.sqrt(
 
-            (mouseX-tower.x)**2+
+        var distance = Math.sqrt(
+
+            (mouseX-tower.x)**2 +
 
             (mouseY-tower.y)**2
 
@@ -612,7 +687,9 @@ function drawRangeCircles(){
 
 
 
-        if(distance<35){
+
+
+        if(distance < 35){
 
 
 
@@ -648,7 +725,9 @@ function drawRangeCircles(){
         }
 
 
+
     });
+
 
 
 }
