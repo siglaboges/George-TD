@@ -1,6 +1,6 @@
 // =========================
-// GEORGE TD v0.4.0
-// MAIN GAME
+// GEORGE TD v0.4.0 HOTFIX
+// MAIN GAME PART 1
 // =========================
 
 
@@ -12,8 +12,8 @@ var canvas = document.getElementById("gameCanvas");
 var ctx = canvas.getContext("2d");
 
 
-const GAME_WIDTH = 1280;
-const GAME_HEIGHT = 720;
+var GAME_WIDTH = 1280;
+var GAME_HEIGHT = 720;
 
 
 canvas.width = GAME_WIDTH;
@@ -23,7 +23,7 @@ canvas.height = GAME_HEIGHT;
 
 function resizeCanvas(){
 
-    let scale = Math.min(
+    var scale = Math.min(
         window.innerWidth / GAME_WIDTH,
         window.innerHeight / GAME_HEIGHT
     );
@@ -54,15 +54,15 @@ resizeCanvas();
 // IMAGES
 // =========================
 
-const enemyImg = new Image();
+var enemyImg = new Image();
 enemyImg.src="sprite/enemy.png";
 
 
-const arrowImg = new Image();
+var arrowImg = new Image();
 arrowImg.src="sprite/arrow.png";
 
 
-const arrowPImg = new Image();
+var arrowPImg = new Image();
 arrowPImg.src="sprite/arrowp.png";
 
 
@@ -72,19 +72,39 @@ arrowPImg.src="sprite/arrowp.png";
 // =========================
 
 var coins = 500;
-var gems = Number(localStorage.getItem("gems")) || 0;
+
+
+var gems =
+Number(localStorage.getItem("gems"))
+|| 0;
+
+
 var lives = 100;
+
+
 var stage = 1;
+
+
 var currentWave = 0;
+
+
 var gameOver = false;
 
 
+
 // =========================
-// OBJECT ARRAYS
+// SHARED VARIABLES
 // =========================
 
+var selectedTower = null;
+
+
 var enemies = [];
+
+
 var towers = [];
+
+
 var projectiles = [];
 
 
@@ -93,7 +113,8 @@ var projectiles = [];
 // PATH
 // =========================
 
-let path=[];
+var path = [];
+
 
 
 function updatePath(){
@@ -132,23 +153,22 @@ updatePath();
 
 
 
-
-
 // =========================
 // MOUSE
 // =========================
 
-let mouseX=0;
-let mouseY=0;
+var mouseX = 0;
+
+var mouseY = 0;
 
 
 
 canvas.addEventListener(
 "mousemove",
-(event)=>{
+function(event){
 
 
-    let rect =
+    var rect =
     canvas.getBoundingClientRect();
 
 
@@ -168,10 +188,6 @@ canvas.addEventListener(
 
 
 });
-
-
-
-
 // =========================
 // DRAW MAP
 // =========================
@@ -185,11 +201,8 @@ function drawMap(){
     ctx.fillRect(
 
         0,
-
         0,
-
         canvas.width,
-
         canvas.height
 
     );
@@ -219,7 +232,7 @@ function drawMap(){
 
 
     for(
-        let i=1;
+        var i=1;
         i<path.length;
         i++
     ){
@@ -252,11 +265,10 @@ function drawMap(){
 function drawEnemies(){
 
 
+    enemies.forEach(function(enemy){
 
-    enemies.forEach(enemy=>{
 
-
-        let size=enemy.size;
+        var size = enemy.size;
 
 
 
@@ -359,11 +371,8 @@ function drawUI(){
     ctx.fillRect(
 
         0,
-
         0,
-
         canvas.width,
-
         55
 
     );
@@ -381,30 +390,49 @@ function drawUI(){
 
 
     ctx.fillText(
+
         "$"+coins,
+
         20,
+
         35
+
     );
 
 
+
     ctx.fillText(
+
         "💎 "+gems,
+
         150,
+
         35
+
     );
 
 
+
     ctx.fillText(
+
         "❤️ "+lives,
+
         280,
+
         35
+
     );
 
 
+
     ctx.fillText(
+
         "Wave "+currentWave,
+
         420,
+
         35
+
     );
 
 
@@ -414,8 +442,7 @@ function drawUI(){
 
         ctx.fillText(
 
-            "Next wave: "+
-            Math.ceil(waveTimer),
+            "Next wave: "+Math.ceil(waveTimer),
 
             570,
 
@@ -462,7 +489,6 @@ function drawShop(){
 
 
     ctx.fillStyle="#333";
-
 
 
     ctx.fillRect(
@@ -534,15 +560,11 @@ function drawGameOver(){
     "rgba(0,0,0,0.7)";
 
 
-
     ctx.fillRect(
 
         0,
-
         0,
-
         canvas.width,
-
         canvas.height
 
     );
@@ -643,7 +665,9 @@ function gameLoop(){
 
 
     requestAnimationFrame(
+
         gameLoop
+
     );
 
 
