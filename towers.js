@@ -1,5 +1,5 @@
 // =========================
-// GEORGE TD v0.4.4.1
+// GEORGE TD v0.4.4.2
 // TOWERS + PROJECTILES
 // =========================
 
@@ -65,7 +65,6 @@ function updateTowers(){
         enemies.forEach(function(enemy){
 
 
-
             var distance=Math.sqrt(
 
                 (enemy.x-tower.x)**2+
@@ -82,7 +81,6 @@ function updateTowers(){
             }
 
 
-
         });
 
 
@@ -90,7 +88,6 @@ function updateTowers(){
 
 
         if(target){
-
 
 
             tower.angle=Math.atan2(
@@ -146,6 +143,7 @@ function updateTowers(){
 
 
     });
+
 
 
 }
@@ -212,6 +210,7 @@ function updateProjectiles(){
             dx
 
         );
+
 
 
 
@@ -446,7 +445,7 @@ function drawRangeCircles(){
 
 
     // =====================
-    // PLACING MODE
+    // PLACING TOWER
     // =====================
 
 
@@ -454,8 +453,7 @@ function drawRangeCircles(){
 
 
 
-        // tower blocking zones
-
+        // Existing tower spacing circles
 
         towers.forEach(function(tower){
 
@@ -471,7 +469,7 @@ function drawRangeCircles(){
 
                 tower.y,
 
-                25,
+                40,
 
                 0,
 
@@ -498,17 +496,25 @@ function drawRangeCircles(){
 
 
 
-        // placement circle
 
 
         invalidPlacement =
         !canPlaceTower(
+
             mouseX,
+
             mouseY
+
         );
 
 
 
+
+
+
+
+
+        // New tower attack range preview
 
 
         ctx.beginPath();
@@ -521,7 +527,7 @@ function drawRangeCircles(){
 
             mouseY,
 
-            25,
+            220,
 
             0,
 
@@ -531,9 +537,11 @@ function drawRangeCircles(){
 
 
 
-
-
         if(invalidPlacement){
+
+
+            ctx.fillStyle=
+            "rgba(255,0,0,0.25)";
 
 
             ctx.strokeStyle="red";
@@ -543,6 +551,10 @@ function drawRangeCircles(){
         else{
 
 
+            ctx.fillStyle=
+            "rgba(0,150,255,0.25)";
+
+
             ctx.strokeStyle="lime";
 
 
@@ -550,7 +562,52 @@ function drawRangeCircles(){
 
 
 
+
+
+        ctx.fill();
+
+
         ctx.lineWidth=3;
+
+
+        ctx.stroke();
+
+
+
+
+
+
+        // Placement collision circle
+
+
+        ctx.beginPath();
+
+
+
+        ctx.arc(
+
+            mouseX,
+
+            mouseY,
+
+            40,
+
+            0,
+
+            Math.PI*2
+
+        );
+
+
+
+        ctx.strokeStyle=
+
+        invalidPlacement
+
+        ? "red"
+
+        : "white";
+
 
 
         ctx.stroke();
