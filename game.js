@@ -1,5 +1,5 @@
 // =========================
-// GEORGE TD v0.4.0 HOTFIX
+// GEORGE TD v0.4.1
 // MAIN GAME PART 1
 // =========================
 
@@ -11,6 +11,8 @@
 var canvas = document.getElementById("gameCanvas");
 var ctx = canvas.getContext("2d");
 
+
+// Fixed game resolution
 
 var GAME_WIDTH = 1280;
 var GAME_HEIGHT = 720;
@@ -50,33 +52,34 @@ resizeCanvas();
 
 
 
+
 // =========================
 // IMAGES
 // =========================
 
 var enemyImg = new Image();
-enemyImg.src="sprite/enemy.png";
+enemyImg.src = "sprite/enemy.png";
 
 
 var arrowImg = new Image();
-arrowImg.src="sprite/arrow.png";
+arrowImg.src = "sprite/arrow.png";
 
 
 var arrowPImg = new Image();
-arrowPImg.src="sprite/arrowp.png";
+arrowPImg.src = "sprite/arrowp.png";
+
 
 
 
 // =========================
-// PLAYER
+// PLAYER DATA
 // =========================
 
 var coins = 500;
 
 
 var gems =
-Number(localStorage.getItem("gems"))
-|| 0;
+Number(localStorage.getItem("gems")) || 0;
 
 
 var lives = 100;
@@ -92,20 +95,22 @@ var gameOver = false;
 
 
 
-// =========================
-// SHARED VARIABLES
-// =========================
 
-var selectedTower = null;
-
+// =========================
+// SHARED GAME ARRAYS
+// =========================
 
 var enemies = [];
 
-
 var towers = [];
 
+var projectiles [];
 
-var projectiles = [];
+
+// tower selection
+
+var selectedTower = null;
+
 
 
 
@@ -119,7 +124,7 @@ var path = [];
 
 function updatePath(){
 
-    path=[
+    path = [
 
         {
             x:0,
@@ -128,20 +133,20 @@ function updatePath(){
 
 
         {
-            x:GAME_WIDTH*0.65,
+            x:GAME_WIDTH * 0.65,
             y:200
         },
 
 
         {
-            x:GAME_WIDTH*0.65,
-            y:GAME_HEIGHT*0.7
+            x:GAME_WIDTH * 0.65,
+            y:GAME_HEIGHT * 0.7
         },
 
 
         {
             x:GAME_WIDTH,
-            y:GAME_HEIGHT*0.7
+            y:GAME_HEIGHT * 0.7
         }
 
     ];
@@ -149,7 +154,9 @@ function updatePath(){
 }
 
 
+
 updatePath();
+
 
 
 
@@ -186,6 +193,69 @@ function(event){
     (canvas.height / rect.height);
 
 
+});
+
+
+
+
+// =========================
+// TOWER CLICK INPUT
+// =========================
+
+canvas.addEventListener(
+"click",
+function(event){
+
+
+    var rect =
+    canvas.getBoundingClientRect();
+
+
+
+    var x =
+    (event.clientX - rect.left)
+    *
+    (canvas.width / rect.width);
+
+
+
+    var y =
+    (event.clientY - rect.top)
+    *
+    (canvas.height / rect.height);
+
+
+
+
+    // shop button
+
+    if(
+        x < 120 &&
+        y > canvas.height - 120
+    ){
+
+        selectedTower = "arrow";
+
+        return;
+
+    }
+
+
+
+
+    // tower placement
+
+    if(selectedTower === "arrow"){
+
+
+        placeTower(x,y);
+
+
+        selectedTower = null;
+
+
+    }
+
 
 });
 // =========================
@@ -195,7 +265,7 @@ function(event){
 function drawMap(){
 
 
-    ctx.fillStyle="#6ac34a";
+    ctx.fillStyle = "#6ac34a";
 
 
     ctx.fillRect(
@@ -209,11 +279,11 @@ function drawMap(){
 
 
 
-    ctx.strokeStyle="#b88652";
+    ctx.strokeStyle = "#b88652";
 
-    ctx.lineWidth=80;
+    ctx.lineWidth = 80;
 
-    ctx.lineCap="round";
+    ctx.lineCap = "round";
 
 
 
@@ -232,8 +302,8 @@ function drawMap(){
 
 
     for(
-        var i=1;
-        i<path.length;
+        var i = 1;
+        i < path.length;
         i++
     ){
 
@@ -259,113 +329,13 @@ function drawMap(){
 
 
 // =========================
-// DRAW ENEMIES
-// =========================
-
-function drawEnemies(){
-
-
-    enemies.forEach(function(enemy){
-
-
-        var size = enemy.size;
-
-
-
-        ctx.drawImage(
-
-            enemyImg,
-
-            enemy.x-size/2,
-
-            enemy.y-size/2,
-
-            size,
-
-            size
-
-        );
-
-
-
-        ctx.globalAlpha=0.25;
-
-
-        ctx.fillStyle=enemy.color;
-
-
-        ctx.fillRect(
-
-            enemy.x-size/2,
-
-            enemy.y-size/2,
-
-            size,
-
-            size
-
-        );
-
-
-
-        ctx.globalAlpha=1;
-
-
-
-        // HP BAR
-
-
-        ctx.fillStyle="black";
-
-
-        ctx.fillRect(
-
-            enemy.x-size/2,
-
-            enemy.y-size/2-12,
-
-            size,
-
-            7
-
-        );
-
-
-
-        ctx.fillStyle="red";
-
-
-        ctx.fillRect(
-
-            enemy.x-size/2,
-
-            enemy.y-size/2-12,
-
-            size*(enemy.hp/enemy.maxHp),
-
-            7
-
-        );
-
-
-
-    });
-
-
-}
-
-
-
-
-
-// =========================
 // UI
 // =========================
 
 function drawUI(){
 
 
-    ctx.fillStyle="black";
+    ctx.fillStyle = "black";
 
 
     ctx.fillRect(
@@ -379,19 +349,19 @@ function drawUI(){
 
 
 
-    ctx.fillStyle="white";
+    ctx.fillStyle = "white";
 
 
-    ctx.font="20px Arial";
+    ctx.font = "20px Arial";
 
 
-    ctx.textAlign="left";
+    ctx.textAlign = "left";
 
 
 
     ctx.fillText(
 
-        "$"+coins,
+        "$" + coins,
 
         20,
 
@@ -403,7 +373,7 @@ function drawUI(){
 
     ctx.fillText(
 
-        "💎 "+gems,
+        "💎 " + gems,
 
         150,
 
@@ -415,7 +385,7 @@ function drawUI(){
 
     ctx.fillText(
 
-        "❤️ "+lives,
+        "❤️ " + lives,
 
         280,
 
@@ -427,7 +397,7 @@ function drawUI(){
 
     ctx.fillText(
 
-        "Wave "+currentWave,
+        "Wave " + currentWave,
 
         420,
 
@@ -437,12 +407,13 @@ function drawUI(){
 
 
 
+
     if(!waveInProgress){
 
 
         ctx.fillText(
 
-            "Next wave: "+Math.ceil(waveTimer),
+            "Next wave: " + Math.ceil(waveTimer),
 
             570,
 
@@ -455,15 +426,15 @@ function drawUI(){
 
 
 
-    ctx.textAlign="right";
+    ctx.textAlign = "right";
 
 
 
     ctx.fillText(
 
-        "George TD v0.4.0",
+        "George TD v0.4.1",
 
-        canvas.width-20,
+        canvas.width - 20,
 
         35
 
@@ -471,7 +442,7 @@ function drawUI(){
 
 
 
-    ctx.textAlign="left";
+    ctx.textAlign = "left";
 
 
 }
@@ -488,14 +459,14 @@ function drawShop(){
 
 
 
-    ctx.fillStyle="#333";
+    ctx.fillStyle = "#333";
 
 
     ctx.fillRect(
 
         10,
 
-        canvas.height-120,
+        canvas.height - 120,
 
         110,
 
@@ -511,7 +482,7 @@ function drawShop(){
 
         35,
 
-        canvas.height-110,
+        canvas.height - 110,
 
         50,
 
@@ -521,10 +492,10 @@ function drawShop(){
 
 
 
-    ctx.fillStyle="white";
+    ctx.fillStyle = "white";
 
 
-    ctx.font="italic 20px cursive";
+    ctx.font = "italic 20px cursive";
 
 
     ctx.fillText(
@@ -533,7 +504,7 @@ function drawShop(){
 
         35,
 
-        canvas.height-35
+        canvas.height - 35
 
     );
 
@@ -556,8 +527,9 @@ function drawGameOver(){
 
 
 
-    ctx.fillStyle=
+    ctx.fillStyle =
     "rgba(0,0,0,0.7)";
+
 
 
     ctx.fillRect(
@@ -571,43 +543,43 @@ function drawGameOver(){
 
 
 
-    ctx.fillStyle="white";
+    ctx.fillStyle = "white";
 
 
-    ctx.textAlign="center";
+    ctx.textAlign = "center";
 
 
-    ctx.font="60px Arial";
+    ctx.font = "60px Arial";
 
 
     ctx.fillText(
 
         "GAME OVER",
 
-        canvas.width/2,
+        canvas.width / 2,
 
-        canvas.height/2
+        canvas.height / 2
 
     );
 
 
 
-    ctx.font="25px Arial";
+    ctx.font = "25px Arial";
 
 
     ctx.fillText(
 
-        "Reached Wave "+currentWave,
+        "Reached Wave " + currentWave,
 
-        canvas.width/2,
+        canvas.width / 2,
 
-        canvas.height/2+50
+        canvas.height / 2 + 50
 
     );
 
 
 
-    ctx.textAlign="left";
+    ctx.textAlign = "left";
 
 
 }
