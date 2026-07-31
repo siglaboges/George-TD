@@ -13,8 +13,11 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+const GAME_WIDTH = 1280;
+const GAME_HEIGHT = 720;
+
+canvas.width = GAME_WIDTH;
+canvas.height = GAME_HEIGHT;
 
 
 window.addEventListener("resize",()=>{
