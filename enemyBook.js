@@ -20,49 +20,49 @@ var enemyBook = {
 
     2:{
         hp:3,
-        split:"Tier 1 + Tier 1"
+        split:"Nothing"
     },
 
 
     3:{
         hp:5,
-        split:"Tier 2 + Tier 1"
+        split:"Nothing"
     },
 
 
     4:{
         hp:10,
-        split:"Tier 3 + Tier 2"
+        split:"Nothing"
     },
 
 
     5:{
         hp:25,
-        split:"Tier 4 + Tier 3"
+        split:"Nothing"
     },
 
 
     6:{
         hp:50,
-        split:"Tier 5 + Tier 4"
+        split:"Nothing"
     },
 
 
     7:{
         hp:100,
-        split:"Tier 6 + Tier 5"
+        split:"Tier 1 + Tier 6"
     },
 
 
     8:{
         hp:300,
-        split:"Tier 7 + Tier 6"
+        split:"Tier 2 + Tier 7"
     },
 
 
     9:{
         hp:750,
-        split:"Tier 8 + Tier 8"
+        split:"Tier 1 + Tier 8"
     }
 
 
@@ -81,7 +81,6 @@ var enemyBook = {
 function drawEnemyMenu(){
 
 
-
     if(!enemyMenuOpen)
         return;
 
@@ -89,8 +88,7 @@ function drawEnemyMenu(){
 
 
 
-    // background
-
+    // MENU BACKGROUND
 
     ctx.fillStyle =
     "rgba(0,0,0,0.85)";
@@ -112,6 +110,10 @@ function drawEnemyMenu(){
 
 
 
+
+
+    // TITLE
+
     ctx.fillStyle="white";
 
 
@@ -121,20 +123,24 @@ function drawEnemyMenu(){
     ctx.textAlign="center";
 
 
-
     ctx.fillText(
 
         "ENEMY BOOK",
 
         canvas.width/2,
 
-        125
+        130
 
     );
 
 
 
 
+
+
+
+
+    // CONTENT
 
     ctx.font="20px Arial";
 
@@ -143,15 +149,13 @@ function drawEnemyMenu(){
 
 
 
-
-
-    var y = 170;
+    var y = 180;
 
 
 
     for(
-        var i=1;
-        i<=9;
+        var i = 1;
+        i <= 9;
         i++
     ){
 
@@ -185,7 +189,7 @@ function drawEnemyMenu(){
 
             "Splits into: "+enemyBook[i].split,
 
-            620,
+            600,
 
             y
 
