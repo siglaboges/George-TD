@@ -16,18 +16,30 @@ const ctx = canvas.getContext("2d");
 const GAME_WIDTH = 1280;
 const GAME_HEIGHT = 720;
 
+
 canvas.width = GAME_WIDTH;
 canvas.height = GAME_HEIGHT;
 
 
-window.addEventListener("resize",()=>{
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+function resizeCanvas(){
 
-    updatePath();
+    let scale = Math.min(
+        window.innerWidth / GAME_WIDTH,
+        window.innerHeight / GAME_HEIGHT
+    );
 
-});
+
+    canvas.style.width = GAME_WIDTH * scale + "px";
+    canvas.style.height = GAME_HEIGHT * scale + "px";
+
+}
+
+
+
+window.addEventListener("resize", resizeCanvas);
+
+resizeCanvas();
 
 
 
