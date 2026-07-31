@@ -1,14 +1,15 @@
 // =========================
-// GEORGE TD v0.4.0
+// GEORGE TD v0.4.1
 // ENEMIES + WAVES
 // =========================
+
 
 
 // =========================
 // ENEMY TIERS
 // =========================
 
-const enemyTiers = {
+var enemyTiers = {
 
     1:{
         hp:1,
@@ -68,8 +69,9 @@ const enemyTiers = {
 
 
 
+
 // =========================
-// WAVE SYSTEM
+// WAVE DATA
 // =========================
 
 var enemiesLeftToSpawn = 0;
@@ -81,13 +83,17 @@ var waveTimer = 5;
 var spawnCooldown = 0;
 
 
+
+
 // =========================
 // SPAWN ENEMY
 // =========================
 
 function spawnEnemy(tier){
 
-    let data = enemyTiers[tier];
+
+    var data = enemyTiers[tier];
+
 
 
     enemies.push({
@@ -118,7 +124,9 @@ function spawnEnemy(tier){
 
     });
 
+
 }
+
 
 
 
@@ -128,28 +136,34 @@ function spawnEnemy(tier){
 
 function startWave(){
 
+
     currentWave++;
 
-    stage=currentWave;
+
+    stage = currentWave;
 
 
-    waveInProgress=true;
+    waveInProgress = true;
+
 
 
     enemiesLeftToSpawn =
     5 + currentWave * 2;
 
+
 }
 
 
 
+
 // =========================
-// CHOOSE ENEMY TIER
+// CHOOSE TIER
 // =========================
 
 function chooseTier(){
 
-    let chance=Math.random();
+
+    var chance = Math.random();
 
 
 
@@ -169,7 +183,9 @@ function chooseTier(){
 
 
 
+
     if(currentWave < 8){
+
 
         if(chance < 0.7)
             return 1;
@@ -185,7 +201,9 @@ function chooseTier(){
 
 
 
+
     if(currentWave < 12){
+
 
         if(chance < 0.5)
             return 2;
@@ -203,15 +221,19 @@ function chooseTier(){
 
     return Math.floor(Math.random()*5)+1;
 
+
 }
 
 
 
+
+
 // =========================
-// HANDLE WAVES
+// WAVE HANDLER
 // =========================
 
 function handleWaves(){
+
 
 
     if(gameOver)
@@ -226,38 +248,49 @@ function handleWaves(){
 
 
 
-        if(waveTimer<=0){
+        if(waveTimer <= 0){
 
             startWave();
 
         }
 
 
+
         return;
 
+
     }
+
+
 
 
 
 
     if(
-        enemiesLeftToSpawn>0
+        enemiesLeftToSpawn > 0
         &&
-        spawnCooldown<=0
+        spawnCooldown <= 0
     ){
 
 
+
         spawnEnemy(
+
             chooseTier()
+
         );
+
 
 
         enemiesLeftToSpawn--;
 
 
-        spawnCooldown=40;
+
+        spawnCooldown = 40;
+
 
     }
+
 
 
 
@@ -266,25 +299,37 @@ function handleWaves(){
 
 
 
+
+
     if(
-        enemiesLeftToSpawn<=0
+
+        enemiesLeftToSpawn <= 0
+
         &&
-        enemies.length===0
+
+        enemies.length === 0
+
     ){
 
 
-        waveInProgress=false;
+
+        waveInProgress = false;
 
 
-        coins+=100;
+        coins += 100;
 
 
-        waveTimer=5;
+        waveTimer = 5;
+
 
     }
 
 
 }
+
+
+
+
 
 
 
@@ -295,27 +340,33 @@ function handleWaves(){
 function moveEnemies(){
 
 
-    enemies.forEach((enemy,index)=>{
 
-
-        let target = path[enemy.point];
+    enemies.forEach(function(enemy,index){
 
 
 
-        let dx =
+        var target = path[enemy.point];
+
+
+
+        var dx =
         target.x - enemy.x;
 
 
-        let dy =
+        var dy =
         target.y - enemy.y;
 
 
 
-        let distance =
+        var distance =
         Math.sqrt(
-            dx*dx+
+
+            dx*dx +
+
             dy*dy
+
         );
+
 
 
 
@@ -323,9 +374,12 @@ function moveEnemies(){
         if(distance < enemy.speed){
 
 
+
             enemy.x = target.x;
 
+
             enemy.y = target.y;
+
 
 
             enemy.point++;
@@ -333,7 +387,9 @@ function moveEnemies(){
 
 
 
+
             if(enemy.point >= path.length){
+
 
 
                 lives--;
@@ -341,25 +397,32 @@ function moveEnemies(){
 
 
                 enemies.splice(
+
                     index,
+
                     1
+
                 );
 
 
 
-                if(lives<=0){
 
 
-                    lives=0;
+                if(lives <= 0){
 
 
-                    gameOver=true;
+                    lives = 0;
+
+
+                    gameOver = true;
 
 
                 }
 
 
+
             }
+
 
 
         }
@@ -367,19 +430,135 @@ function moveEnemies(){
 
 
             enemy.x +=
+
             (dx/distance)
+
             *
+
             enemy.speed;
 
 
 
             enemy.y +=
+
             (dy/distance)
+
             *
+
             enemy.speed;
 
 
         }
+
+
+
+    });
+
+
+
+}
+
+
+
+
+
+
+
+// =========================
+// DRAW ENEMIES
+// =========================
+
+function drawEnemies(){
+
+
+
+    enemies.forEach(function(enemy){
+
+
+
+        var size = enemy.size;
+
+
+
+        ctx.drawImage(
+
+            enemyImg,
+
+            enemy.x-size/2,
+
+            enemy.y-size/2,
+
+            size,
+
+            size
+
+        );
+
+
+
+
+        ctx.globalAlpha = 0.25;
+
+
+        ctx.fillStyle = enemy.color;
+
+
+
+        ctx.fillRect(
+
+            enemy.x-size/2,
+
+            enemy.y-size/2,
+
+            size,
+
+            size
+
+        );
+
+
+
+        ctx.globalAlpha = 1;
+
+
+
+
+
+        // HP BAR
+
+
+        ctx.fillStyle="black";
+
+
+        ctx.fillRect(
+
+            enemy.x-size/2,
+
+            enemy.y-size/2-12,
+
+            size,
+
+            7
+
+        );
+
+
+
+        ctx.fillStyle="red";
+
+
+        ctx.fillRect(
+
+            enemy.x-size/2,
+
+            enemy.y-size/2-12,
+
+            size*(enemy.hp/enemy.maxHp),
+
+            7
+
+        );
+
 
 
     });
