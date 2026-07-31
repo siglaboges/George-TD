@@ -1,8 +1,7 @@
 // =========================
-// GEORGE TD v0.4.4
+// GEORGE TD v0.4.4.1
 // TOWERS + PROJECTILES
 // =========================
-
 
 
 // =========================
@@ -14,36 +13,27 @@ function placeTower(x,y){
 
     towers.push({
 
-
         x:x,
 
         y:y,
 
-
         damage:1,
-
 
         range:220,
 
-
         cooldown:0,
-
 
         fireRate:40,
 
-
         angle:0
 
-
     });
-
 
 
     coins-=100;
 
 
 }
-
 
 
 
@@ -60,13 +50,11 @@ function updateTowers(){
     towers.forEach(function(tower){
 
 
-
         if(tower.cooldown>0){
 
             tower.cooldown--;
 
         }
-
 
 
 
@@ -94,8 +82,8 @@ function updateTowers(){
             }
 
 
-        });
 
+        });
 
 
 
@@ -160,7 +148,6 @@ function updateTowers(){
     });
 
 
-
 }
 
 
@@ -170,9 +157,8 @@ function updateTowers(){
 
 
 
-
 // =========================
-// PROJECTILES
+// UPDATE PROJECTILES
 // =========================
 
 function updateProjectiles(){
@@ -208,8 +194,6 @@ function updateProjectiles(){
 
 
 
-
-
         var distance=Math.sqrt(
 
             dx*dx+
@@ -228,7 +212,6 @@ function updateProjectiles(){
             dx
 
         );
-
 
 
 
@@ -277,7 +260,6 @@ function updateProjectiles(){
                     coins+=10;
 
 
-
                 }
 
 
@@ -286,11 +268,8 @@ function updateProjectiles(){
 
 
 
-
-
         }
         else{
-
 
 
             arrow.x +=
@@ -311,13 +290,11 @@ function updateProjectiles(){
 
 
 
-
     });
 
 
 
 }
-
 
 
 
@@ -393,7 +370,6 @@ function drawTowers(){
 
 
 
-
 // =========================
 // DRAW PROJECTILES
 // =========================
@@ -461,7 +437,6 @@ function drawProjectiles(){
 
 
 
-
 // =========================
 // RANGE CIRCLES
 // =========================
@@ -471,7 +446,7 @@ function drawRangeCircles(){
 
 
     // =====================
-    // PLACING TOWER
+    // PLACING MODE
     // =====================
 
 
@@ -479,17 +454,8 @@ function drawRangeCircles(){
 
 
 
-        invalidPlacement =
-        !canPlaceTower(
-            mouseX,
-            mouseY
-        );
+        // tower blocking zones
 
-
-
-
-
-        // Existing tower blocked zones
 
         towers.forEach(function(tower){
 
@@ -518,7 +484,7 @@ function drawRangeCircles(){
             ctx.strokeStyle="white";
 
 
-            ctx.lineWidth=2;
+            ctx.lineWidth=3;
 
 
             ctx.stroke();
@@ -532,8 +498,17 @@ function drawRangeCircles(){
 
 
 
+        // placement circle
 
-        // Placement range
+
+        invalidPlacement =
+        !canPlaceTower(
+            mouseX,
+            mouseY
+        );
+
+
+
 
 
         ctx.beginPath();
@@ -546,7 +521,7 @@ function drawRangeCircles(){
 
             mouseY,
 
-            220,
+            25,
 
             0,
 
@@ -561,25 +536,28 @@ function drawRangeCircles(){
         if(invalidPlacement){
 
 
-            ctx.fillStyle =
-            "rgba(255,0,0,0.5)";
+            ctx.strokeStyle="red";
 
 
         }
         else{
 
 
-            ctx.fillStyle =
-            "rgba(0,150,255,0.5)";
+            ctx.strokeStyle="lime";
 
 
         }
 
 
 
+        ctx.lineWidth=3;
 
-        ctx.fill();
 
+        ctx.stroke();
+
+
+
+        return;
 
 
     }
@@ -591,7 +569,9 @@ function drawRangeCircles(){
 
 
 
-    // Hover tower range
+    // =====================
+    // NORMAL HOVER RANGE
+    // =====================
 
 
     towers.forEach(function(tower){
@@ -631,7 +611,7 @@ function drawRangeCircles(){
 
 
 
-            ctx.fillStyle =
+            ctx.fillStyle=
             "rgba(0,150,255,0.5)";
 
 
