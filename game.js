@@ -83,11 +83,9 @@ var gameOver = false;
 // OBJECT ARRAYS
 // =========================
 
-let enemies = [];
-
-let towers = [];
-
-let projectiles = [];
+var enemies = [];
+var towers = [];
+var projectiles = [];
 
 
 
