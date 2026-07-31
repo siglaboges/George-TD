@@ -1,5 +1,5 @@
 // =========================
-// GEORGE TD v0.4.3
+// GEORGE TD v0.4.4
 // TOWERS + PROJECTILES
 // =========================
 
@@ -14,28 +14,35 @@ function placeTower(x,y){
 
     towers.push({
 
+
         x:x,
 
         y:y,
 
+
         damage:1,
+
 
         range:220,
 
+
         cooldown:0,
+
 
         fireRate:40,
 
+
         angle:0
+
 
     });
 
 
-    coins -= 100;
+
+    coins-=100;
 
 
 }
-
 
 
 
@@ -50,12 +57,11 @@ function placeTower(x,y){
 function updateTowers(){
 
 
-
     towers.forEach(function(tower){
 
 
 
-        if(tower.cooldown > 0){
+        if(tower.cooldown>0){
 
             tower.cooldown--;
 
@@ -81,12 +87,11 @@ function updateTowers(){
 
 
 
-            if(distance < tower.range){
+            if(distance<tower.range){
 
                 target=enemy;
 
             }
-
 
 
         });
@@ -140,8 +145,8 @@ function updateTowers(){
 
 
 
-
                 tower.cooldown=tower.fireRate;
+
 
 
             }
@@ -149,7 +154,6 @@ function updateTowers(){
 
 
         }
-
 
 
 
@@ -231,16 +235,15 @@ function updateProjectiles(){
 
 
 
-        if(distance < arrow.speed){
+        if(distance<arrow.speed){
 
 
 
-            arrow.target.hp -= arrow.damage;
+            arrow.target.hp-=arrow.damage;
 
 
 
             projectiles.splice(index,1);
-
 
 
 
@@ -262,13 +265,16 @@ function updateProjectiles(){
 
 
                     enemies.splice(
+
                         enemyIndex,
+
                         1
+
                     );
 
 
 
-                    coins += 10;
+                    coins+=10;
 
 
 
@@ -277,6 +283,7 @@ function updateProjectiles(){
 
 
             }
+
 
 
 
@@ -301,7 +308,6 @@ function updateProjectiles(){
 
 
         }
-
 
 
 
@@ -346,15 +352,11 @@ function drawTowers(){
 
 
 
-
-
         ctx.rotate(
 
-            tower.angle - Math.PI/2
+            tower.angle-Math.PI/2
 
         );
-
-
 
 
 
@@ -371,8 +373,6 @@ function drawTowers(){
             50
 
         );
-
-
 
 
 
@@ -420,15 +420,11 @@ function drawProjectiles(){
 
 
 
-
-
         ctx.rotate(
 
             arrow.angle-Math.PI/2
 
         );
-
-
 
 
 
@@ -445,8 +441,6 @@ function drawProjectiles(){
             35
 
         );
-
-
 
 
 
@@ -476,7 +470,9 @@ function drawRangeCircles(){
 
 
 
-    // tower placement preview
+    // =====================
+    // PLACING TOWER
+    // =====================
 
 
     if(selectedTower==="arrow"){
@@ -491,6 +487,53 @@ function drawRangeCircles(){
 
 
 
+
+
+        // Existing tower blocked zones
+
+        towers.forEach(function(tower){
+
+
+
+            ctx.beginPath();
+
+
+
+            ctx.arc(
+
+                tower.x,
+
+                tower.y,
+
+                25,
+
+                0,
+
+                Math.PI*2
+
+            );
+
+
+
+            ctx.strokeStyle="white";
+
+
+            ctx.lineWidth=2;
+
+
+            ctx.stroke();
+
+
+
+        });
+
+
+
+
+
+
+
+        // Placement range
 
 
         ctx.beginPath();
@@ -535,7 +578,6 @@ function drawRangeCircles(){
 
 
 
-
         ctx.fill();
 
 
@@ -547,7 +589,9 @@ function drawRangeCircles(){
 
 
 
-    // hover existing tower
+
+
+    // Hover tower range
 
 
     towers.forEach(function(tower){
@@ -560,8 +604,6 @@ function drawRangeCircles(){
             (mouseY-tower.y)**2
 
         );
-
-
 
 
 
@@ -589,8 +631,6 @@ function drawRangeCircles(){
 
 
 
-
-
             ctx.fillStyle =
             "rgba(0,150,255,0.5)";
 
@@ -601,7 +641,6 @@ function drawRangeCircles(){
 
 
         }
-
 
 
 
